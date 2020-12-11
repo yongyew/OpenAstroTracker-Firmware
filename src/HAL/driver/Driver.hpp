@@ -1,8 +1,9 @@
 #pragma once
 
-#include "stdint.h"
+#include "../stepper/Stepper.hpp"
 
-#define MS_AVAILABLE(modes, mode) modes & mode
+#include "stdint.h"
+#include "AccelStepper.h"
 
 /**
  * This is the abstract interface to be implemented by specific driver implementations.
@@ -13,6 +14,8 @@
 class Driver
 {
 public:
+    Driver(const Stepper &stepper, const AccelStepper &accelStepper);
+
     /**
      * Perform required preparations (e.g. setting up UART connection, max speed,
      * microstepping etc.)
@@ -26,12 +29,17 @@ public:
      * limit defines the amount of steps to move at the specified speed.
      * maxSteps 0 lead to infinite movement (until another call of this function).
      */
-    virtual void move(float speed, int microstepping = 1, float limit = 0) const = 0;
+    // virtual void move(float speed, int microstepping = 1, float limit = 0) const = 0;
 
     /**
-     * Return degrees per step in full step mode of the attached stepper motor.
+     * Return amount of full steps per revolution.
      */
-    virtual float getDegPerStep() const = 0;
+    uint16_t getStepperSPR() const;
+
+    /**
+     * Return circumference of the pulley used on the stepper motor controlled by this driver.
+     */
+    float getPulleyCircumference() const;
 
     /**
      * Return available microstepping modes as bitmask of 16 bits. Modes are 
@@ -42,25 +50,24 @@ public:
     virtual uint16_t getAvailableMicrosteppingModes() const = 0;
 
     /**
+     * Set microstepping. The value has to be power of 2 between 1 and 256.
+     */
+    void setMicrostepping(const uint16_t microstepping);
+
+    /**
+     * Get currently selected microstepping mode.
+     */
+    uint16_t getMicrostepping() const;
+
+    /**
      * Return maximal speed (steps per second).
      */
     virtual uint16_t getMaxSpeed() const = 0;
-};
 
-// /**
-//  * Abstract factory interface which should be implemented by the actual specific driver
-//  * implementation. Its purpose is to keep all the driver specific code
-//  * (even its initialization) together with the actual driver implementation. This way
-//  * the higher level hardware abstraction can be kept clean and small.
-//  */
-    // class DriverFactory
-    // {
-    // public:
-    //     /**
-    //      * Create a new instance of the specific driver implementation in the heap memory
-    //      * and return a pointer to it upcasted to the abstract Driver type. This way driver
-    //      * users wont need to know the actual impementation and can use the driver in a
-    //      * unified way.
-    //      */
-    //     virtual Driver* createInstance();
-    // };
+protected:
+    virtual void updateMicrostepping(uint16_t microstepping) = 0;
+
+    const Stepper &stepper;
+    const AccelStepper &accelStepper;
+    uint16_t microstepping;
+};
