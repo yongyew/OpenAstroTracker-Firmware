@@ -37,11 +37,6 @@ public:
     uint16_t getStepperSPR() const;
 
     /**
-     * Return circumference of the pulley used on the stepper motor controlled by this driver.
-     */
-    float getPulleyCircumference() const;
-
-    /**
      * Return available microstepping modes as bitmask of 16 bits. Modes are 
      * represented from lowest to highest bit (1,2,4,8,16,32,64,128,256...) respectively.
      * E.g. 0000_0000_0000_1011 stands for available modes: full step, half step and 8.

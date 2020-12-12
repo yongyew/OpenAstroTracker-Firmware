@@ -18,7 +18,7 @@ public:
      * Construct a new RotationAxis instance.
      * driver - pointer to a specific implementation instance of the Driver interface.
      */
-    RotationAxis(const Driver &driver, const float circumference);
+    RotationAxis(const Driver &driver, AccelStepper *accelStepper, const float transmission);
 
     /**
      * Perform initial setup of this axis. This calling setup of the motor driver.
@@ -45,7 +45,7 @@ protected:
 
     const Driver &driver;
 
-    const float circumference;
+    const float transmission;
 private:
-    AccelStepper accelstepper;
+    AccelStepper *accelStepper;
 };

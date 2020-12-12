@@ -13,11 +13,6 @@ uint16_t Driver::getStepperSPR() const
     return stepper.getSPR();
 }
 
-float Driver::getPulleyCircumference() const
-{
-    return stepper.getPulleyCircumference();
-}
-
 void Driver::setMicrostepping(uint16_t microstepping)
 {
     if (microstepping == this->microstepping)

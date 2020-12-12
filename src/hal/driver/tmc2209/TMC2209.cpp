@@ -2,15 +2,31 @@
 
 #include "AccelStepper.h"
 
-TMC2209::TMC2209(const Stepper &stepper) : Driver(stepper, AccelStepper(AccelStepper::DRIVER, 0, 0, 0, 0))
+TMC2209::TMC2209(const Stepper &stepper, Stream *serial, const uint8_t address) : Driver(stepper, AccelStepper(AccelStepper::DRIVER, 0, 0, 0, 0))
 {
+    tmcStepper = new TMC2209Stepper(serial, 0.11f, address);
 }
 
-void TMC2209::setup() const {}
-
-float TMC2209::getDegPerFullStep() const
+void TMC2209::setup() const
 {
-    return stepper.getSPR();
+    tmcStepper->begin();
+
+    // TODO: document these values and why they are used
+
+#if RA_AUDIO_FEEDBACK == 1
+    tmcStepper->en_spreadCycle(1);
+#endif
+    tmcStepper->toff(4);
+    tmcStepper->blank_time(24);
+    tmcStepper->rms_current(stepper.getRMSCurrent());
+    tmcStepper->fclktrim(4);
+    tmcStepper->TCOOLTHRS(0xFFFFF);
+    tmcStepper->ihold(1);           // its save to assume that the only time RA stands still is during parking and the current can be limited to a minimum
+    //tmcStepper->semin(2);
+    //tmcStepper->semax(5);
+    //tmcStepper->sedn(0b01);
+    //tmcStepper->SGTHRS(10);
+    tmcStepper->irun(31);
 }
 
 uint16_t TMC2209::getAvailableMicrosteppingModes() const
@@ -21,9 +37,10 @@ uint16_t TMC2209::getAvailableMicrosteppingModes() const
 
 uint16_t TMC2209::getMaxSpeed() const
 {
-    return stepper.getMaxStepsPerSecond();
+    return stepper.getMaxFullStepsPerSecond();
 }
 
-void TMC2209::updateMicrostepping(uint16_t microstepping) {
-    // TODO
+void TMC2209::updateMicrostepping(uint16_t microstepping)
+{
+    tmcStepper->microsteps(microstepping);
 }

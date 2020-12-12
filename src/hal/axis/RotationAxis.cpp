@@ -4,9 +4,10 @@
 
 RotationAxis::RotationAxis(
     const Driver &driver,
-    const float circumference) : driver(driver),
-                                 circumference(circumference),
-                                 accelstepper(AccelStepper()) {}
+    AccelStepper *accellStepper,
+    const float transmission) : driver(driver),
+                                 transmission(transmission),
+                                 accelStepper(accellStepper) {}
 
 void RotationAxis::setup()
 {
@@ -18,7 +19,7 @@ void RotationAxis::loop()
     /**
      * also concider run to position and return to the tracking speed if necessary
      */
-    accelstepper.runSpeed();
+    accelStepper->runSpeed();
 }
 
 void RotationAxis::setRotationSpeed(const float speed)
@@ -27,11 +28,11 @@ void RotationAxis::setRotationSpeed(const float speed)
     /* 
     * perform conversion from arcsecs to steps. Take in account:
     * - stepper degs per step
-    * - reduction (ring radius, pulley etc.)
+    * - transmission (ring radius, pulley etc.)
     */
 }
 
 float RotationAxis::getFullStepsPerDeg() const
 {
-    return (circumference / driver.getPulleyCircumference()) * (driver.getStepperSPR() / 360.0f);
+    return transmission * (driver.getStepperSPR() / 360.0f);
 }

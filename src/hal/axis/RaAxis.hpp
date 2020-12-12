@@ -6,30 +6,28 @@
  * Tracking speed in arcsecs per second
  */
 #define SECONDS_PER_DAY 86164.0905
-#define TRACKING_SPEED(RA_CIRC, PULLEY_CIRC, STEPEPR_SPR, MICROSTEPPING) \
-    (RA_CIRC * STEPEPR_SPR * MICROSTEPPING / (SECONDS_PER_DAY * PULLEY_CIRC))
 
 class RaAxis : public RotationAxis
 {
 public:
-    enum RaGuideMode
+    enum RaGuidingPulse
     {
-        DISABLED,
+        NONE,
         POSITIVE,
         NEGATIVE
     };
 
-    RaAxis(const Driver &driver, const float circumference);
+    RaAxis(const Driver &driver, const float transmission, const float guidingSpeedFactor);
 
     void setTracking(const bool enabled);
 
-    void setGuiding(const RaGuideMode mode);
+    void setGuiding(const RaGuidingPulse mode);
 
 private:
+    float getTrackingSpeed() const;
     void recalculateRotationSpeed();
 
     bool trackingEnabled;
-    const float trackingSpeed;
-    RaGuideMode guidingMode;
-    const float guidingSpeed;
+    RaGuidingPulse guidingMode;
+    const float guidingSpeedFactor;
 };

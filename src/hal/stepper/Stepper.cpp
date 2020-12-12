@@ -1,26 +1,41 @@
 #include "Stepper.hpp"
 
+#include "math.h"
+
 Stepper::Stepper(
     const int spr,
-    const float circumference,
     const bool supportsMicrostepping,
-    const uint16_t maxStepsPerSecond) : spr(spr),
-                                        circumference(circumference),
-                                        supportsMicrostepping(supportsMicrostepping),
-                                        maxStepsPerSecond(maxStepsPerSecond) {}
+    const float ratedCurrent,
+    const float voltage,
+    const float inductance) : spr(spr),
+                              supportsMicrostepping(supportsMicrostepping),
+                              ratedCurrent(ratedCurrent),
+                              voltage(voltage),
+                              inductance(inductance)
+{
+}
 
-int Stepper::getSPR() const {
+int Stepper::getSPR() const
+{
     return spr;
 }
 
-float Stepper::getPulleyCircumference() const {
-    return circumference;
-}
-
-bool Stepper::isMicrosteppingSupported() const {
+bool Stepper::isMicrosteppingSupported() const
+{
     return supportsMicrostepping;
 }
 
-uint16_t Stepper::getMaxStepsPerSecond() const {
-    return maxStepsPerSecond;
+float Stepper::getRMSCurrent() const
+{
+    return ratedCurrent * sqrtf(2.0f);
+}
+
+uint16_t Stepper::getMaxFullStepsPerSecond() const
+{
+    return ratedCurrent * sqrt(2);
+}
+
+uint16_t Stepper::getRatedCurrent() const
+{
+    return ratedCurrent;
 }
