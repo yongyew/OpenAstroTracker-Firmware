@@ -2,11 +2,13 @@
 
 #include "../../inc/Config.hpp"
 
-RaAxis::RaAxis(const Driver &driver, const float transmission, const float guidingSpeedFactor) : 
-    RotationAxis(driver, new AccelStepper(), transmission),
-    trackingEnabled(false),
-    guidingMode(NONE),
-    guidingSpeedFactor(guidingSpeedFactor)
+RaAxis::RaAxis(
+    const float transmission,
+    Driver &driver,
+    const float guidingSpeedFactor) : RotationAxis(transmission, driver),
+                                      trackingEnabled(false),
+                                      guidingDirection(NONE),
+                                      guidingSpeedFactor(guidingSpeedFactor)
 {
 }
 
@@ -16,37 +18,22 @@ void RaAxis::setTracking(const bool enable)
     recalculateRotationSpeed();
 }
 
-void RaAxis::setGuiding(const RaGuidingPulse mode)
+void RaAxis::setGuiding(const GuidingDirection mode)
 {
-    guidingMode = mode;
+    guidingDirection = mode;
     recalculateRotationSpeed();
-}
-
-float RaAxis::getTrackingSpeed() const
-{
-    return transmission * driver.getStepperSPR() * driver.getMicrostepping() / SECONDS_PER_DAY;
 }
 
 void RaAxis::recalculateRotationSpeed()
 {
     float speed = 0.0f;
 
-    if (trackingEnabled) {
-        speed += getTrackingSpeed();
-    }
-
-    switch (guidingMode)
+    if (trackingEnabled)
     {
-    case POSITIVE:
-        speed += guidingSpeedFactor;
-        break;
-    case NEGATIVE:
-        speed -= guidingSpeedFactor;
-        break;
-    case NONE:
-    default:
-        break;
+        speed += EARTH_ROTATION_SPEED;
     }
 
-    setRotationSpeed(speed);
+    speed += guidingDirection * guidingSpeedFactor * EARTH_ROTATION_SPEED;
+
+    rotate(speed);
 }

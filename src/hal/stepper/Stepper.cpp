@@ -30,12 +30,21 @@ float Stepper::getRMSCurrent() const
     return ratedCurrent * sqrtf(2.0f);
 }
 
-uint16_t Stepper::getMaxFullStepsPerSecond() const
+float Stepper::getMaxSpeed() const
 {
-    return ratedCurrent * sqrt(2);
+    /**
+     * T_s      - time per step
+     * L        - inductance
+     * I_max    - max current
+     * V        - voltage
+     * 
+     * T_s = L * I_max * 2 / V
+     * Steps per second = 1 / T_s
+     */
+    return voltage / (inductance * ratedCurrent * 2);
 }
 
-uint16_t Stepper::getRatedCurrent() const
+float Stepper::getRatedCurrent() const
 {
     return ratedCurrent;
 }

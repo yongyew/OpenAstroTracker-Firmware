@@ -14,13 +14,30 @@
 class Driver
 {
 public:
-    Driver(const Stepper &stepper, const AccelStepper &accelStepper);
+
+    /**
+     * Construct new driver with provided hardware specifications.
+     * 
+     * stepper - reference to the stepper specifications
+     * interfaceType - type of driver interface (wires)
+     * pin1 - first pin
+     * pin2 - second pin
+     * pin3 - third pin
+     * pin4 - fourth pin
+     */
+    Driver(
+        const Stepper &stepper,
+        AccelStepper::MotorInterfaceType interfaceType,
+        uint8_t pin1 = NOT_A_PIN,
+        uint8_t pin2 = NOT_A_PIN,
+        uint8_t pin3 = NOT_A_PIN,
+        uint8_t pin4 = NOT_A_PIN);
 
     /**
      * Perform required preparations (e.g. setting up UART connection, max speed,
      * microstepping etc.)
      */
-    virtual void setup() const = 0;
+    virtual void setup() = 0;
 
     /**
      * Move the motor at the specified speed (steps per second).  
@@ -63,6 +80,7 @@ protected:
     virtual void updateMicrostepping(uint16_t microstepping) = 0;
 
     const Stepper &stepper;
-    const AccelStepper &accelStepper;
+
+    const AccelStepper accelStepper;
     uint16_t microstepping;
 };

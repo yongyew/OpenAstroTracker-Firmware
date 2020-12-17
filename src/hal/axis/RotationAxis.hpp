@@ -6,7 +6,7 @@
 
 /**
  * Rotation axis used for most movements of the tracking mount. The axis class calculates
- * conversions from arcsecs to steps of its stepper taking into account gear reductions, 
+ * conversions from arcsecs to steps of its stepper taking into account transmission, 
  * max speed, stepper and driver characteristics etc. It should be used by the mount without
  * exposing detailed information about the used hardware.
  **/
@@ -15,37 +15,57 @@ class RotationAxis
 
 public:
     /**
-     * Construct a new RotationAxis instance.
-     * driver - pointer to a specific implementation instance of the Driver interface.
+     * Perform initial setup of this axis. This function will setup all the hadrware used for it.
      */
-    RotationAxis(const Driver &driver, AccelStepper *accelStepper, const float transmission);
-
-    /**
-     * Perform initial setup of this axis. This calling setup of the motor driver.
-     */
-    void setup();
+    virtual void setup();
 
     /**
      * Perform required calculations and make a motor step if needed.
-     * This function has to be called periodically.
+     * This function has to be called periodically as fast as possible and at least 1 time per step.
      */
-    void loop();
+    virtual void loop();
 
 protected:
+
+    /**
+     * Construct a new RotationAxis instance.
+     * 
+     * transmission - transmission value of this axis. If e.g. RA ring circumference is 100mm and used pulley is 20mm,
+     *                resulting transmission would be (circ_ra / circ_pulley) = (100 / 20) = 5
+     * driver - reference to a specific implementation instance of the Driver interface.
+     */
+    RotationAxis(const float transmission, Driver &driver);
+
     /**
      * Rotate the axis at the specified speed.
+     * 
      * speed - deg per second. Negative for reversed direction. Zero for stop.
      */
-    void setRotationSpeed(const float speed);
+    void rotate(const float speed);
 
     /**
-     * Return angle of the axis it moves per stepper full step.
+     * Rotate the axis at the specified speed to a target and stop after this target was reached. The last loop() call 
+     * will also call onTargetReached() so the subclass can react.
+     * 
+     * speed - deg per second. Negative for reversed direction. Zero for stop.
+     * target - target of rotation in deg (absolute)
      */
-    float getFullStepsPerDeg() const;
+    void rotateToTarget(const float speed, const float target);
 
-    const Driver &driver;
+    /**
+     * Callback to be called after the rotation target was reached. This function will be called at the end of the 
+     * loop() call which leads to reaching the target set in rotateToTarget().
+     */
+    virtual void onTargetReached();
+
+private:
+
+    /**
+     * Return amount of steps needed to rotate this axis by one degree concidering current microstepping.
+     */
+    float getStepsPerDeg() const;
 
     const float transmission;
-private:
-    AccelStepper *accelStepper;
+
+    Driver &driver;
 };

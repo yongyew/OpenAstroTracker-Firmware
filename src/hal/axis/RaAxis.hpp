@@ -2,32 +2,27 @@
 
 #include "RotationAxis.hpp"
 
-/**
- * Tracking speed in arcsecs per second
- */
-#define SECONDS_PER_DAY 86164.0905
-
 class RaAxis : public RotationAxis
 {
 public:
-    enum RaGuidingPulse
+
+    enum GuidingDirection
     {
-        NONE,
-        POSITIVE,
-        NEGATIVE
+        WEST = -1,
+        NONE = 0,
+        EAST = 1
     };
 
-    RaAxis(const Driver &driver, const float transmission, const float guidingSpeedFactor);
+    RaAxis(const float transmission, Driver &driver, const float guidingSpeedFactor);
 
     void setTracking(const bool enabled);
 
-    void setGuiding(const RaGuidingPulse mode);
+    void setGuiding(const GuidingDirection mode);
 
 private:
-    float getTrackingSpeed() const;
     void recalculateRotationSpeed();
 
     bool trackingEnabled;
-    RaGuidingPulse guidingMode;
+    GuidingDirection guidingDirection;
     const float guidingSpeedFactor;
 };

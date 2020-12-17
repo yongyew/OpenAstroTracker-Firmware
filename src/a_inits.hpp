@@ -1,7 +1,5 @@
 #pragma once
 
-#include "hal/hal.h"
-
 #include <AccelStepper.h>
 #if DISPLAY_TYPE > 0
 #include <LiquidCrystal.h>
@@ -12,15 +10,6 @@
 #include "DayTime.hpp"
 #include "Mount.hpp"
 #include "MeadeCommandProcessor.hpp"
-
-Stepper raStepper(
-  RA_STEPPER_SPR, // speps per revolution
-  true,           // microstepping 
-  0.9f,
-  12.0f,
-  12.0f);
-TMC2209 raDriver(raStepper, &Serial3, 0);
-RaAxis ra(raDriver, RA_WHEEL_CIRCUMFERENCE / RA_PULLEY_TEETH * 2.0, 1.5f);
 
 // TODO: we have to change driver type to DRIVER_TYPE_TMC2209 and add a new definition for the actual mode (e.g. DRIVER_MODE_UART)
 #if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)

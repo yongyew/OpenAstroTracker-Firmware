@@ -37,7 +37,18 @@ LcdButtons lcdButtons(&lcdMenu);
 #ifdef ESP32
 DRAM_ATTR Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
 #else
-Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
+// Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
+
+Stepper raStepper(
+  RA_STEPPER_SPR, // speps per revolution
+  true,           // microstepping 
+  0.9f,
+  12.0f,
+  12.0f);
+TMC2209 raDriver(raStepper, &Serial3, RA_DRIVER_ADDRESS, RA_STEP_PIN);
+RaAxis ra(RA_WHEEL_CIRCUMFERENCE / RA_PULLEY_TEETH * 2.0, raDriver, 1.5f);
+
+Mount mount(ra);
 #endif
 
 #include "g_bluetooth.hpp"

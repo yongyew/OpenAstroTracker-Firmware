@@ -12,9 +12,10 @@ public:
     /**
     * Create a stepper instance to be used by a driver.
     * spr - steps per revolution (1.8° => 200, 0.9° => 400)
-    * circumference - circumference of the pulley used on this stepper
-    * maxStepsPerSecond - maximal stepping speed this stepper can handle
-    * ratedCurrent - current rating of this stepper motor
+    * supportsMicrostepping - whether this stepper supports microstepping (e.g. 28byj-48 does not)
+    * ratedCurrent - current rating of this stepper motor in A
+    * voltage - stepper voltage in V
+    * inductance - inductance of the stepper in mH
     */
     Stepper(const int spr,
             const bool supportsMicrostepping,
@@ -35,7 +36,7 @@ public:
     /**
      * Get maximal speed (steps/s) of this stepper motor
      */
-    uint16_t getMaxFullStepsPerSecond() const;
+    float getMaxSpeed() const;
 
     /**
      * Calculate RMS current from the rated current.
@@ -45,7 +46,7 @@ public:
     /**
      * Get rated current of this motor. This value should be used to configure RMS properly.
      */
-    uint16_t getRatedCurrent() const;
+    float getRatedCurrent() const;
 
 private:
     const int spr;

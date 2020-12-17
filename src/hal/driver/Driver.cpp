@@ -2,11 +2,15 @@
 
 #include "AccelStepper.h"
 
-Driver::Driver(const Stepper &stepper, const AccelStepper &accelstepper) : stepper(stepper),
-                                                                           accelStepper(accelStepper)
-{
-    microstepping = 1; // init at full steps
-}
+Driver::Driver(
+    const Stepper &stepper,
+    AccelStepper::MotorInterfaceType interfaceType,
+    uint8_t pin1,
+    uint8_t pin2,
+    uint8_t pin3,
+    uint8_t pin4) : stepper(stepper),
+                    accelStepper(AccelStepper(interfaceType, pin1, pin2, pin3, pin4)),
+                    microstepping(1) {}
 
 uint16_t Driver::getStepperSPR() const
 {

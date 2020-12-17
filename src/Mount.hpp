@@ -12,6 +12,8 @@
 #include "Declination.hpp"
 #include "LcdMenu.hpp"
 
+#include "hal/hal.h"
+
 #if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
  #include <TMCStepper.h>
  // If you get an error here, download the TMCstepper library from "Tools > Manage Libraries"
@@ -66,6 +68,7 @@
 class Mount {
 public:
   Mount(float stepsPerRADegree, float stepsPerDECDegree, LcdMenu* lcdMenu);
+  Mount(RaAxis &raAxis);
 
   static Mount instance();
 

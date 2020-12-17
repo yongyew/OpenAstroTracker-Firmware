@@ -43,3 +43,9 @@
 #define DRIVER_TYPE_GENERIC             1
 #define DRIVER_TYPE_TMC2209_STANDALONE  2
 #define DRIVER_TYPE_TMC2209_UART        3
+
+// Seconds per day (23h 56m 4.095s)
+#define SECONDS_PER_DAY 86164.0905
+
+// Earth rotation speed in deg per sec
+#define EARTH_ROTATION_SPEED 360.0 / SECONDS_PER_DAY
