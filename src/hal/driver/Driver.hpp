@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../stepper/Stepper.hpp"
+#include "../stepper/StepperSpecs.hpp"
 
 #include "stdint.h"
 #include "AccelStepper.h"
@@ -15,23 +15,18 @@ class Driver
 {
 public:
 
+    enum Direction 
+    {
+        CLOCKWISE = 1,
+        ANTICLOCKWISE = -1
+    };
+
     /**
      * Construct new driver with provided hardware specifications.
      * 
      * stepper - reference to the stepper specifications
-     * interfaceType - type of driver interface (wires)
-     * pin1 - first pin
-     * pin2 - second pin
-     * pin3 - third pin
-     * pin4 - fourth pin
      */
-    Driver(
-        const Stepper &stepper,
-        AccelStepper::MotorInterfaceType interfaceType,
-        uint8_t pin1 = NOT_A_PIN,
-        uint8_t pin2 = NOT_A_PIN,
-        uint8_t pin3 = NOT_A_PIN,
-        uint8_t pin4 = NOT_A_PIN);
+    Driver(const StepperSpecs &stepper);
 
     /**
      * Perform required preparations (e.g. setting up UART connection, max speed,
@@ -72,15 +67,21 @@ public:
     uint16_t getMicrostepping() const;
 
     /**
-     * Return maximal speed (steps per second).
+     * Return maximal speed (steps per second) taking microstepping and driver characteristics into account.
      */
     virtual uint16_t getMaxSpeed() const = 0;
+
+    /**
+     * Perform a step in the currently set direction.
+     */
+    virtual void step() = 0;
 
 protected:
     virtual void updateMicrostepping(uint16_t microstepping) = 0;
 
-    const Stepper &stepper;
+    const StepperSpecs &stepper;
 
-    const AccelStepper accelStepper;
     uint16_t microstepping;
+
+    Direction direction = CLOCKWISE;
 };

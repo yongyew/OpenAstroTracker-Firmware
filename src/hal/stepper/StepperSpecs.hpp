@@ -5,10 +5,9 @@
 /**
  * Represents technical specification of the used stepper.
  */
-class Stepper
+class StepperSpecs
 {
 public:
-
     /**
     * Create a stepper instance to be used by a driver.
     * spr - steps per revolution (1.8° => 200, 0.9° => 400)
@@ -17,21 +16,16 @@ public:
     * voltage - stepper voltage in V
     * inductance - inductance of the stepper in mH
     */
-    Stepper(const int spr,
-            const bool supportsMicrostepping,
-            const float ratedCurrent,
-            const float voltage,
-            const float inductance);
+    StepperSpecs(
+        const int spr,
+        const float ratedCurrent,
+        const float voltage,
+        const float inductance);
 
     /**
      * Get steps per revolution
      */
-    int getSPR() const;
-
-    /**
-     * Get whether this stepper is able to execute microstepping
-     */
-    bool isMicrosteppingSupported() const;
+    int getStepsPerRevolution() const;
 
     /**
      * Get maximal speed (steps/s) of this stepper motor
@@ -50,7 +44,6 @@ public:
 
 private:
     const int spr;
-    const bool supportsMicrostepping;
     const float ratedCurrent;
     const float voltage;
     const float inductance;

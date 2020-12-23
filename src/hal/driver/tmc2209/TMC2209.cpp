@@ -3,10 +3,10 @@
 #include "AccelStepper.h"
 
 TMC2209::TMC2209(
-    const Stepper &stepper,
+    const StepperSpecs &stepper,
     Stream *serial,
     const uint8_t address,
-    uint8_t stepPin) : Driver(stepper, AccelStepper::DRIVER, stepPin),
+    uint8_t stepPin) : Driver(stepper),
                        tmcStepper(TMC2209Stepper(serial, 0.11f, address))
 {
 }
@@ -41,10 +41,15 @@ uint16_t TMC2209::getAvailableMicrosteppingModes() const
 
 uint16_t TMC2209::getMaxSpeed() const
 {
-    return stepper.getMaxSpeed();
+    return stepper.getMaxSpeed() * microstepping;
 }
 
 void TMC2209::updateMicrostepping(const uint16_t microstepping)
 {
     tmcStepper.microsteps((microstepping <= 1) ? 0 : microstepping);
+}
+
+void TMC2209::step()
+{
+    // TODO
 }

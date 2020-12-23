@@ -3,18 +3,13 @@
 #include "AccelStepper.h"
 
 Driver::Driver(
-    const Stepper &stepper,
-    AccelStepper::MotorInterfaceType interfaceType,
-    uint8_t pin1,
-    uint8_t pin2,
-    uint8_t pin3,
-    uint8_t pin4) : stepper(stepper),
-                    accelStepper(AccelStepper(interfaceType, pin1, pin2, pin3, pin4)),
-                    microstepping(1) {}
+    const StepperSpecs &stepper) : stepper(stepper),
+                                   microstepping(1),
+                                   direction(CLOCKWISE) {}
 
 uint16_t Driver::getStepperSPR() const
 {
-    return stepper.getSPR();
+    return stepper.getStepsPerRevolution();
 }
 
 void Driver::setMicrostepping(uint16_t microstepping)
@@ -26,6 +21,10 @@ void Driver::setMicrostepping(uint16_t microstepping)
     {
         this->microstepping = microstepping;
         updateMicrostepping(microstepping);
+    }
+    else
+    {
+        // TODO: log a warning about wrong microstepping mode
     }
 }
 

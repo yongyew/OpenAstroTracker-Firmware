@@ -25,6 +25,16 @@ public:
      */
     virtual void loop();
 
+    /**
+     * Get current axis position in degrees.
+     */
+    float getCurrentPosition() const;
+
+    /**
+     * Set current axis position in degrees. Negative values are allowed.
+     */
+    void setCurrentPosition(float degrees);
+
 protected:
 
     /**
@@ -39,18 +49,18 @@ protected:
     /**
      * Rotate the axis at the specified speed.
      * 
-     * speed - deg per second. Negative for reversed direction. Zero for stop.
+     * degPerSecond - Rotation speed. Negative for reversed direction. Zero for stop.
      */
-    void rotate(const float speed);
+    void rotate(const float degPerSecond);
 
     /**
      * Rotate the axis at the specified speed to a target and stop after this target was reached. The last loop() call 
      * will also call onTargetReached() so the subclass can react.
      * 
-     * speed - deg per second. Negative for reversed direction. Zero for stop.
+     * degPerSecond - Rotation speed. Negative for reversed direction. Zero for stop.
      * target - target of rotation in deg (absolute)
      */
-    void rotateToTarget(const float speed, const float target);
+    void rotateToTarget(const float degPerSecond, const float target);
 
     /**
      * Callback to be called after the rotation target was reached. This function will be called at the end of the 
@@ -64,6 +74,11 @@ private:
      * Return amount of steps needed to rotate this axis by one degree concidering current microstepping.
      */
     float getStepsPerDeg() const;
+
+    /**
+     * Current position of this axis in degrees.
+     */
+    float currentPosition;
 
     const float transmission;
 

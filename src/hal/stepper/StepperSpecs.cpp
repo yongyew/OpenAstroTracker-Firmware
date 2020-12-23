@@ -1,36 +1,29 @@
-#include "Stepper.hpp"
+#include "StepperSpecs.hpp"
 
 #include "math.h"
 
-Stepper::Stepper(
+StepperSpecs::StepperSpecs(
     const int spr,
-    const bool supportsMicrostepping,
     const float ratedCurrent,
     const float voltage,
     const float inductance) : spr(spr),
-                              supportsMicrostepping(supportsMicrostepping),
                               ratedCurrent(ratedCurrent),
                               voltage(voltage),
                               inductance(inductance)
 {
 }
 
-int Stepper::getSPR() const
+int StepperSpecs::getStepsPerRevolution() const
 {
     return spr;
 }
 
-bool Stepper::isMicrosteppingSupported() const
+float StepperSpecs::getRMSCurrent() const
 {
-    return supportsMicrostepping;
+    return ratedCurrent * M_SQRT2;
 }
 
-float Stepper::getRMSCurrent() const
-{
-    return ratedCurrent * sqrtf(2.0f);
-}
-
-float Stepper::getMaxSpeed() const
+float StepperSpecs::getMaxSpeed() const
 {
     /**
      * T_s      - time per step
@@ -44,7 +37,7 @@ float Stepper::getMaxSpeed() const
     return voltage / (inductance * ratedCurrent * 2);
 }
 
-float Stepper::getRatedCurrent() const
+float StepperSpecs::getRatedCurrent() const
 {
     return ratedCurrent;
 }
