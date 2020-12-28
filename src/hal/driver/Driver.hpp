@@ -14,12 +14,14 @@
 class Driver
 {
 public:
-
-    enum Direction 
+    enum Direction
     {
         CLOCKWISE = 1,
         ANTICLOCKWISE = -1
     };
+
+    template<class T>
+    static T* create();
 
     /**
      * Construct new driver with provided hardware specifications.
@@ -35,18 +37,9 @@ public:
     virtual void setup() = 0;
 
     /**
-     * Move the motor at the specified speed (steps per second).  
-     * Negative speed value leads to reversed direction.
-     * Speed 0 leads to a stop of the motor.
-     * limit defines the amount of steps to move at the specified speed.
-     * maxSteps 0 lead to infinite movement (until another call of this function).
+     * Return specs of the connected stepper.
      */
-    // virtual void move(float speed, int microstepping = 1, float limit = 0) const = 0;
-
-    /**
-     * Return amount of full steps per revolution.
-     */
-    uint16_t getStepperSPR() const;
+    const StepperSpecs &getStepperSpecs() const;
 
     /**
      * Return available microstepping modes as bitmask of 16 bits. Modes are 
@@ -75,6 +68,8 @@ public:
      * Perform a step in the currently set direction.
      */
     virtual void step() = 0;
+
+    virtual void setDirection(Direction direction) = 0;
 
 protected:
     virtual void updateMicrostepping(uint16_t microstepping) = 0;

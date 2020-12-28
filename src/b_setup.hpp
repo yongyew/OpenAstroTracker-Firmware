@@ -38,16 +38,7 @@ LcdButtons lcdButtons(&lcdMenu);
 DRAM_ATTR Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
 #else
 // Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
-
-StepperSpecs raStepper(
-  RA_STEPPER_SPR, // speps per revolution
-  0.9f,
-  12.0f,
-  12.0f);
-TMC2209 raDriver(raStepper, &Serial3, RA_DRIVER_ADDRESS, RA_STEP_PIN);
-RaAxis ra(RA_WHEEL_CIRCUMFERENCE / RA_PULLEY_TEETH * 2.0, raDriver, 1.5f);
-
-Mount mount(ra);
+Mount mount(hal::axis::ra);
 #endif
 
 #include "g_bluetooth.hpp"
@@ -310,10 +301,6 @@ void finishSetup()
     #error New stepper type? Configure it here.
   #endif
 
-  #if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-    LOGV1(DEBUG_ANY, F("Configure RA driver..."));
-    mount.configureRAdriver(&RA_SERIAL_PORT, R_SENSE, RA_DRIVER_ADDRESS, RA_RMSCURRENT, RA_STALL_VALUE);
-  #endif
   #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
     LOGV1(DEBUG_ANY, F("Configure DEC driver TMC2209 UART..."));
     mount.configureDECdriver(&DEC_SERIAL_PORT, R_SENSE, DEC_DRIVER_ADDRESS, DEC_RMSCURRENT, DEC_STALL_VALUE);

@@ -93,14 +93,33 @@
 #ifndef RA_PULLEY_TEETH
 #define RA_PULLEY_TEETH     16
 #endif
+
 #ifndef DEC_PULLEY_TEETH
 #define DEC_PULLEY_TEETH    16
 #endif
+
 #ifndef AZ_PULLEY_TEETH
 #define AZ_PULLEY_TEETH    16
 #endif
+
 #ifndef ALT_PULLEY_TEETH
 #define ALT_PULLEY_TEETH    16
+#endif
+
+// Stepper configuration
+// TODO: force the user to set these values
+#ifndef RA_STEPPER_RATED_CURRENT
+#define RA_STEPPER_RATED_CURRENT 600
+#endif
+#ifndef RA_STEPPER_VOLTAGE
+#define RA_STEPPER_VOLTAGE 12
+#endif
+#ifndef RA_STEPPER_INDUCTANCE
+#define RA_STEPPER_INDUCTANCE 4.1
+#endif
+
+#ifndef DEC_STEPPER_RATED_CURRENT
+#define DEC_STEPPER_RATED_CURRENT 600
 #endif
 
 // Set these factors to correct Alt/Az arcsecond/step values

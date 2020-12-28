@@ -1,18 +1,24 @@
 #include "TMC2209.hpp"
 
-#include "AccelStepper.h"
-
 TMC2209::TMC2209(
     const StepperSpecs &stepper,
     Stream *serial,
     const uint8_t address,
-    uint8_t stepPin) : Driver(stepper),
-                       tmcStepper(TMC2209Stepper(serial, 0.11f, address))
+    const uint8_t pin_en,
+    const uint8_t pin_step,
+    const uint8_t pin_dir) : Driver(stepper),
+                       tmcStepper(TMC2209Stepper(serial, 0.11f, address)),
+                       pin_en(pin_en),
+                       pin_step(pin_step),
+                       pin_dir(pin_dir)
 {
 }
 
 void TMC2209::setup()
 {
+    pinMode(pin_step, OUTPUT);
+    pinMode(pin_dir, OUTPUT);
+
     tmcStepper.begin();
 
     // TODO: document these values and why they are used
@@ -51,5 +57,26 @@ void TMC2209::updateMicrostepping(const uint16_t microstepping)
 
 void TMC2209::step()
 {
-    // TODO
+    // TODO: use fast digital write with direct port manipulation
+    digitalWrite(pin_step, HIGH);
+    delayMicroseconds(100); // typical required signal timing for STEP high
+    digitalWrite(pin_step, LOW);
+
+    // TODO: handle other modes (uart etc.)
+}
+
+void TMC2209::setDirection(Direction direction)
+{
+    // TODO: recheck if direction is set correctly
+    switch (direction)
+    {
+    case CLOCKWISE:
+        digitalWrite(pin_dir, HIGH);
+        break;
+    case ANTICLOCKWISE:
+        digitalWrite(pin_dir, LOW);
+        break;
+    default:
+        break;
+    }
 }

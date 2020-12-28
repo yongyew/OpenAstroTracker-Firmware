@@ -8,18 +8,28 @@
 
 #include "../inc/Config.hpp"
 
-// load the platform
-#if defined(__AVR__)
-    #include "platform/AVR/platform.h"
-#elif defined(ARDUINO_ARCH_ESP32)
-    #include "platform/ESP32/platform.h"
-#endif
-
-// 
-#include "driver/tmc2209/TMC2209.hpp"
-
 #include "axis/RaAxis.hpp"
 
-#ifndef INTERRUPTS_ENABLED
-    #define INTERRUPTS_ENABLED 0
+// load the platform
+#if defined(__AVR__)
+#include "platform/AVR/platform.h"
+#elif defined(ARDUINO_ARCH_ESP32)
+#include "platform/ESP32/platform.h"
 #endif
+
+#if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
+#include "driver/TMC2209.hpp"
+typedef TMC2209 RaDriver;
+#endif
+
+#if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
+#include "driver/TMC2209.hpp"
+typedef TMC2209 DecDriver;
+#endif
+
+namespace hal 
+{
+    namespace axis {
+        extern RaAxis ra;
+    }
+}

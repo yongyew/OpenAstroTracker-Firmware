@@ -7,9 +7,9 @@ Driver::Driver(
                                    microstepping(1),
                                    direction(CLOCKWISE) {}
 
-uint16_t Driver::getStepperSPR() const
+const StepperSpecs& Driver::getStepperSpecs() const
 {
-    return stepper.getStepsPerRevolution();
+    return stepper;
 }
 
 void Driver::setMicrostepping(uint16_t microstepping)

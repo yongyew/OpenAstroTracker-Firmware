@@ -80,7 +80,6 @@
 // These settings work only with TMC2209 in UART connection (single wire to TX)
 #define TRACKING_MICROSTEPPING 64  // Set the MS mode for tracking only. Slew MS is set by SET_MICROSTEPPING above
 
-#define RA_RMSCURRENT 1200       // RMS current in mA. Warning: Peak current will be 1.414 times higher!! Do not exceed your steppers max current!
 #define RA_STALL_VALUE 100       // adjust this value if the RA autohoming sequence often false triggers, or triggers too late
 
 #define DEC_SLEW_MICROSTEPPING  16  // The microstep mode used for slewing DEC
@@ -333,7 +332,4 @@
 
 #if DEC_HOLDCURRENT < 1 || DEC_HOLDCURRENT > 31
 #error "Holdcurrent has to be within 1 and 31!"
-#endif
-#if RA_RMSCURRENT > 2000 || DEC_RMSCURRENT > 2000
-#error "Do you really want to set the RMS motorcurrent above 2 Ampere? Thats almost 3A peak! Delete this error if you know what youre doing" 
 #endif

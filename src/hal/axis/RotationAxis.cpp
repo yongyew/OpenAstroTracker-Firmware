@@ -14,6 +14,9 @@ void RotationAxis::setup()
 
 void RotationAxis::loop()
 {
+    
+    driver.step();
+
     // if (!accelStepper.run())
     // {
     //     onTargetReached();
@@ -38,7 +41,7 @@ void RotationAxis::onTargetReached()
 
 float RotationAxis::getStepsPerDeg() const
 {
-    return transmission * driver.getStepperSPR() * driver.getMicrostepping() / 360.0f;
+    return transmission * driver.getStepperSpecs().getStepsPerRevolution() * driver.getMicrostepping() / 360.0f;
 }
 
 float RotationAxis::getCurrentPosition() const
