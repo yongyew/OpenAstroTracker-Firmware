@@ -14,13 +14,9 @@ void RotationAxis::setup()
 
 void RotationAxis::loop()
 {
-    
+    // TODO: check if speed is not zero
+    // TODO: check if target not reached yet
     driver.step();
-
-    // if (!accelStepper.run())
-    // {
-    //     onTargetReached();
-    // }
 }
 
 void RotationAxis::rotate(const float degPerSecond)

@@ -9,6 +9,7 @@
 #include "../inc/Config.hpp"
 
 #include "axis/RaAxis.hpp"
+#include "axis/DecAxis.hpp"
 
 // load the platform
 #if defined(__AVR__)
@@ -31,5 +32,6 @@ namespace hal
 {
     namespace axis {
         extern RaAxis ra;
+        extern DecAxis dec;
     }
 }

@@ -14,7 +14,7 @@
 
 #include "hal/hal.h"
 
-#if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
+#if (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
  #include <TMCStepper.h>
  // If you get an error here, download the TMCstepper library from "Tools > Manage Libraries"
 #endif
@@ -68,7 +68,7 @@
 class Mount {
 public:
   Mount(float stepsPerRADegree, float stepsPerDECDegree, LcdMenu* lcdMenu);
-  Mount(RaAxis &raAxis);
+  Mount(RaAxis &raAxis, DecAxis &decAxis);
 
   static Mount instance();
 

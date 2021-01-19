@@ -121,6 +121,12 @@
 #ifndef DEC_STEPPER_RATED_CURRENT
 #define DEC_STEPPER_RATED_CURRENT 600
 #endif
+#ifndef DEC_STEPPER_VOLTAGE
+#define DEC_STEPPER_VOLTAGE 12
+#endif
+#ifndef DEC_STEPPER_INDUCTANCE
+#define DEC_STEPPER_INDUCTANCE 4.1
+#endif
 
 // Set these factors to correct Alt/Az arcsecond/step values
 #ifndef AZ_CORRECTION_FACTOR

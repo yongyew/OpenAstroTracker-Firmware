@@ -18,12 +18,6 @@ LcdButtons lcdButtons(&lcdMenu);
 #endif
 
 #if defined(__AVR_ATmega2560__)
-#if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-  SoftwareSerial RA_SERIAL_PORT(RA_SERIAL_PORT_RX, RA_SERIAL_PORT_TX);
-#endif
-#if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-  SoftwareSerial DEC_SERIAL_PORT(DEC_SERIAL_PORT_RX, DEC_SERIAL_PORT_TX);
-#endif
 #if AZIMUTH_ALTITUDE_MOTORS == 1
   #if AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
     SoftwareSerial AZ_SERIAL_PORT(AZ_SERIAL_PORT_RX, AZ_SERIAL_PORT_TX);
@@ -38,7 +32,7 @@ LcdButtons lcdButtons(&lcdMenu);
 DRAM_ATTR Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
 #else
 // Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
-Mount mount(hal::axis::ra);
+Mount mount(hal::axis::ra, hal::axis::dec);
 #endif
 
 #include "g_bluetooth.hpp"
@@ -133,13 +127,6 @@ void setup() {
       //digitalWrite(RA_MS1_PIN, HIGH);  // MS1
       //digitalWrite(RA_MS2_PIN, HIGH);  // MS2
       #endif
-    #if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-      // include TMC2209 UART pins  
-      pinMode(RA_EN_PIN, OUTPUT);
-      pinMode(RA_DIAG_PIN, INPUT);
-      digitalWrite(RA_EN_PIN, LOW);  // Logic LOW to enable driver
-      RA_SERIAL_PORT.begin(57600);  // Start HardwareSerial comms with driver
-    #endif
   #endif
   #if DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17  // DEC driver startup (for A4988)
     #if DEC_DRIVER_TYPE == DRIVER_TYPE_GENERIC  // DEC driver startup (for A4988)
@@ -156,15 +143,6 @@ void setup() {
       //digitalWrite(DEC_MS0_PIN, HIGH);  // MS0
       //digitalWrite(DEC_MS1_PIN, HIGH);  // MS1
       //digitalWrite(DEC_MS2_PIN, HIGH);  // MS2
-    #endif
-    #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-      // include TMC2209 UART pins  
-      pinMode(DEC_EN_PIN, OUTPUT);
-      pinMode(DEC_DIAG_PIN, INPUT);
-      //pinMode(DEC_MS1_PIN, OUTPUT);
-      digitalWrite(DEC_EN_PIN, LOW);  // Logic LOW to enable driver
-      //digitalWrite(DEC_MS1_PIN, HIGH); // Logic HIGH to MS1 to get 0b01 address
-      DEC_SERIAL_PORT.begin(57600);  // Start HardwareSerial comms with driver
     #endif
   #endif
   
@@ -278,6 +256,7 @@ void finishSetup()
 
   // Configure the mount
   // Delay for a while to get UARTs booted...
+  // TODO: remove this. serial can be checked for connection directly
   delay(1000);  
 
   LOGV1(DEBUG_ANY, F("Configure RA stepper..."));
@@ -299,11 +278,6 @@ void finishSetup()
     mount.configureDECStepper(DRIVER_MODE, DECmotorPin1, DECmotorPin2, DEC_STEPPER_SPEED, DEC_STEPPER_ACCELERATION);
   #else
     #error New stepper type? Configure it here.
-  #endif
-
-  #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-    LOGV1(DEBUG_ANY, F("Configure DEC driver TMC2209 UART..."));
-    mount.configureDECdriver(&DEC_SERIAL_PORT, R_SENSE, DEC_DRIVER_ADDRESS, DEC_RMSCURRENT, DEC_STALL_VALUE);
   #endif
 
   #if AZIMUTH_ALTITUDE_MOTORS == 1

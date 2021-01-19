@@ -15,16 +15,16 @@ RaAxis::RaAxis(
 void RaAxis::setTracking(const bool enable)
 {
     trackingEnabled = enable;
-    recalculateRotationSpeed();
+    updateRotationSpeed();
 }
 
-void RaAxis::setGuiding(const GuidingDirection mode)
+void RaAxis::setGuiding(const Direction mode)
 {
     guidingDirection = mode;
-    recalculateRotationSpeed();
+    updateRotationSpeed();
 }
 
-void RaAxis::recalculateRotationSpeed()
+void RaAxis::updateRotationSpeed()
 {
     float speed = 0.0f;
 

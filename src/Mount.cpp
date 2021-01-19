@@ -169,9 +169,10 @@ Mount::Mount(float stepsPerRADegree, float stepsPerDECDegree, LcdMenu* lcdMenu) 
   #endif
 }
 
-Mount::Mount(RaAxis &raAxis)
+Mount::Mount(RaAxis &raAxis, DecAxis &decAxis)
 {
   raAxis.setup();
+  decAxis.setup();
 }
 
 /////////////////////////////////

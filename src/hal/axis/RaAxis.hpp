@@ -6,7 +6,7 @@ class RaAxis : public RotationAxis
 {
 public:
 
-    enum GuidingDirection
+    enum Direction
     {
         WEST = -1,
         NONE = 0,
@@ -17,12 +17,12 @@ public:
 
     void setTracking(const bool enabled);
 
-    void setGuiding(const GuidingDirection mode);
+    void setGuiding(const Direction direction);
 
 private:
-    void recalculateRotationSpeed();
+    void updateRotationSpeed();
 
     bool trackingEnabled;
-    GuidingDirection guidingDirection;
+    Direction guidingDirection;
     const float guidingSpeedFactor;
 };
