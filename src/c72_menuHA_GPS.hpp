@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../Configuration.hpp"
 #include "EPROMStore.hpp"
-#include "inc/Config.hpp"
 
 #if USE_GPS == 1
 
@@ -29,8 +29,7 @@ bool gpsAqcuisitionComplete(int & indicator)
                 int mHAfromLST = lst.getMinutes() - POLARIS_RA_MINUTE;
                 mount.setHA(DayTime(hHAfromLST, mHAfromLST, 0));
 
-                EPROMStore::update(1, mount.HA().getHours());
-                EPROMStore::update(2, mount.HA().getMinutes());
+                EEPROMStore::storeHATime(mount.HA());
                 mount.setLatitude(gps.location.lat());
                 mount.setLongitude(gps.location.lng());
 
@@ -110,8 +109,7 @@ bool processHAKeys()
             if (key == btnSELECT)
             {
                 DayTime ha(mount.HA());
-                EPROMStore::update(1, mount.HA().getHours());
-                EPROMStore::update(2, mount.HA().getMinutes());
+                EEPROMStore::storeHATime(mount.HA());
                 lcdMenu.printMenu("Stored.");
                 mount.delay(500);
                 haState = SHOWING_HA_SET;
@@ -189,7 +187,7 @@ void printHASubmenu()
     }
     else if (haState == STARTING_GPS)
     {
-        sprintf(satBuffer, "  Found %lu sats", gps.satellites.value());
+        sprintf(satBuffer, "  Found %d sats", (unsigned int)gps.satellites.value());
         satBuffer[0] = ind[indicator];
     }
     else if (haState == ENTER_HA_MANUALLY)

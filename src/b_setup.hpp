@@ -2,18 +2,20 @@
 
 #pragma once
 
-#include "inc/Config.hpp"
-#include "a_inits.hpp"
-#include "LcdMenu.hpp"
+#include "InterruptCallback.hpp"
+
 #include "Utility.hpp"
 #include "EPROMStore.hpp"
+#include "a_inits.hpp"
+#include "LcdMenu.hpp"
+#include "LcdButtons.hpp"
 
 LcdMenu lcdMenu(16, 2, MAXMENUITEMS);
 #if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD
-LcdButtons lcdButtons(LCD_PINA0, &lcdMenu);
+LcdButtons lcdButtons(LCD_KEY_SENSE_PIN, &lcdMenu);
 #endif
 
-#if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008
+#if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_JOY_I2C_SSD1306
 LcdButtons lcdButtons(&lcdMenu);
 #endif
 
@@ -29,7 +31,7 @@ LcdButtons lcdButtons(&lcdMenu);
 #endif
 
 #ifdef ESP32
-DRAM_ATTR Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
+DRAM_ATTR Mount mount(&lcdMenu);
 #else
 // Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
 Mount mount(hal::axis::ra, hal::axis::dec);
@@ -37,57 +39,57 @@ Mount mount(hal::axis::ra, hal::axis::dec);
 
 #include "g_bluetooth.hpp"
 
-#ifdef WIFI_ENABLED
+#if (WIFI_ENABLED == 1)
 #include "WifiControl.hpp"
 WifiControl wifiControl(&mount, &lcdMenu);
 #endif
 
-void finishSetup();
+/////////////////////////////////
+//   Interrupt handling
+/////////////////////////////////
+/* There are three possible configurations for periodically servicing the steper drives:
+ * 1) If RUN_STEPPERS_IN_MAIN_LOOP != 0 then the stepper drivers are called from Mount::loop().
+ *    Performance depends on how fast Mount::loop() can execute. With serial or UI activity it 
+ *    is likely that steps will be missed and tracking may not be smooth. No interrupts or threads
+ *    are used, so this is simple to get running.
+ * 2) If ESP32 is #defined then a periodic task is assigned to Core 0 to service the steppers.
+ *    stepperControlTask() is scheduled to run every 1 ms (1 kHz rate). On ESP32 the default Arduino 
+ *    loop() function runs on Core 1, therefore serial and UI activity also runs on Core 1. 
+ *    Note that Wifi and Bluetooth drivers will be sharing Core 0 with stepperControlTask().
+ *    This configuration decouples stepper servicing from other OAT activities by using both cores.
+ * 3) By default (e.g. for ATmega2560) a periodic timer is configured for a 500 us (2 kHz rate interval).
+ *    This timr generates interrupts which are handled by stepperControlCallback(). The stepper 
+ *    servicing therefore suspends loop() to generate motion, ensuring smooth tracking.
+ */
+#if (RUN_STEPPERS_IN_MAIN_LOOP != 0)
+  // Nothing to do - Mount::loop() will manage steppers in-line
 
-/////////////////////////////////
-//   ESP32
-/////////////////////////////////
-#if defined(ESP32) && (RUN_STEPPERS_IN_MAIN_LOOP == 0)
-// Forward declare the two functions we run in the main loop
-void serialLoop();
+#elif defined(ESP32)
 
 TaskHandle_t StepperTask;
-TaskHandle_t  CommunicationsTask;
 
-/////////////////////////////////
-//
-// stepperControlFunc
-//
-// This task function is run on Core 1 of the ESP32
-/////////////////////////////////
+// This is the task for simulating periodic interrupts on ESP32 platforms. 
+// It should do very minimal work, only calling Mount::interruptLoop() to step the stepper motors as needed.
+// This task function is run on Core 0 of the ESP32 and never returns
 void IRAM_ATTR stepperControlTask(void* payload)
 {
   Mount* mount = reinterpret_cast<Mount*>(payload);
   for (;;) {
     mount->interruptLoop();
+    vTaskDelay(1);  // 1 ms 	// This will limit max stepping rate to 1 kHz
   }
 }
 
-
-
-/////////////////////////////////
-//
-// mainLoopFunc
-//
-// This task function is run on Core 2 of the ESP32
-/////////////////////////////////
-void IRAM_ATTR mainLoopTask(void* payload)
-{
-  finishSetup();
-
-  for (;;) {
-    serialLoop();
-    #ifdef BLUETOOTH_ENABLED
-    BTin();
-    #endif
-    vTaskDelay(1);
-  }
+#else
+// This is the callback function for the timer interrupt on ATMega platforms. 
+// It should do very minimal work, only calling Mount::interruptLoop() to step the stepper motors as needed.
+// It is called every 500 us (2 kHz rate)
+void stepperControlTimerCallback(void* payload) {
+  Mount* mount = reinterpret_cast<Mount*>(payload);
+  if (mount)
+    mount->interruptLoop();
 }
+
 #endif
 
 /////////////////////////////////
@@ -110,7 +112,7 @@ void setup() {
   //   Microstepping/driver pins
   /////////////////////////////////
   #if RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17  // RA driver startup (for A4988)
-    #if RA_DRIVER_TYPE == DRIVER_TYPE_GENERIC
+    #if RA_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC
       // include A4988 microstep pins
       //#error "Define Microstep pins and delete this error."
       digitalWrite(RA_EN_PIN, HIGH);
@@ -129,7 +131,7 @@ void setup() {
       #endif
   #endif
   #if DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17  // DEC driver startup (for A4988)
-    #if DEC_DRIVER_TYPE == DRIVER_TYPE_GENERIC  // DEC driver startup (for A4988)
+    #if DEC_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC  // DEC driver startup (for A4988)
       digitalWrite(DEC_EN_PIN, HIGH);
       digitalWrite(DEC_MS0_PIN, HIGH);  // MS1
       digitalWrite(DEC_MS1_PIN, HIGH);  // MS2
@@ -147,7 +149,7 @@ void setup() {
   #endif
   
   #if AZIMUTH_ALTITUDE_MOTORS == 1  
-    #if AZ_DRIVER_TYPE == DRIVER_TYPE_GENERIC || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART  
+    #if AZ_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART  
       pinMode(AZ_EN_PIN, OUTPUT);
       digitalWrite(AZ_EN_PIN, HIGH);  // Logic HIGH to disable the driver initally
     #endif
@@ -156,7 +158,7 @@ void setup() {
       pinMode(AZ_DIAG_PIN, INPUT);
       AZ_SERIAL_PORT.begin(57600);  // Start HardwareSerial comms with driver
     #endif
-    #if ALT_DRIVER_TYPE == DRIVER_TYPE_GENERIC || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART  
+    #if ALT_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART  
       pinMode(ALT_EN_PIN, OUTPUT);
       digitalWrite(ALT_EN_PIN, HIGH);  // Logic HIGH to disable the driver initally
     #endif
@@ -168,66 +170,29 @@ void setup() {
   #endif
 // end microstepping -------------------
 
-  Serial.begin(57600);
-  #ifdef BLUETOOTH_ENABLED 
-  BLUETOOTH_SERIAL.begin("OpenAstroTracker");
+  Serial.begin(SERIAL_BAUDRATE);
+
+  #if (BLUETOOTH_ENABLED == 1)
+  BLUETOOTH_SERIAL.begin(BLUETOOTH_DEVICE_NAME);
   #endif
 
   LOGV1(DEBUG_ANY, F("."));
   LOGV2(DEBUG_ANY, F("Hello, universe, this is OAT %s!"), VERSION);
 
-  EPROMStore::initialize();
-  mount.readConfiguration();
+  EEPROMStore::initialize();
 
-  /////////////////////////////////
-  // ESP32
-  /////////////////////////////////
-  #if defined(ESP32) && (RUN_STEPPERS_IN_MAIN_LOOP == 0)
-    disableCore0WDT();
-    xTaskCreatePinnedToCore(
-      stepperControlTask,    // Function to run on this core
-      "StepperControl",      // Name of this task
-      32767,                 // Stack space in bytes
-      &mount,                // payload
-      2,                     // Priority (2 is higher than 1)
-      &StepperTask,          // The location that receives the thread id
-      0);                    // The core to run this on
-
-    delay(100);
-
-    xTaskCreatePinnedToCore(
-      mainLoopTask,             // Function to run on this core
-      "CommunicationControl",   // Name of this task
-      32767,                    // Stack space in bytes
-      NULL,                     // payload
-      1,                        // Priority (2 is higher than 1)
-      &CommunicationsTask,      // The location that receives the thread id
-      1);                       // The core to run this on
-
-    delay(100);
-
-  #else
-
-    finishSetup();
-
-  #endif
-}
-
-void finishSetup()
-{
   // Calling the LCD startup here, I2C can't be found if called earlier
-  #if DISPLAY_TYPE > 0
+  #if DISPLAY_TYPE != DISPLAY_TYPE_NONE
     lcdMenu.startup();
-  #endif
 
-  LOGV1(DEBUG_ANY, F("Finishing boot..."));
-  // Show a splash screen
-  lcdMenu.setCursor(0, 0);
-  lcdMenu.printMenu("OpenAstroTracker");
-  lcdMenu.setCursor(5, 1);
-  lcdMenu.printMenu(VERSION);
+    LOGV1(DEBUG_ANY, F("Finishing boot..."));
+    // Show a splash screen
+    lcdMenu.setCursor(0, 0);
+    lcdMenu.printMenu("OpenAstroTracker");
+    lcdMenu.setCursor(5, 1);
+    lcdMenu.printMenu(VERSION);
+    delay(1000);  // Pause on splash screen
 
-  #if DISPLAY_TYPE > 0
     // Check for EEPROM reset (Button down during boot)
     if (lcdButtons.currentState() == btnDOWN){
       LOGV1(DEBUG_INFO, F("Erasing configuration in EEPROM!"));
@@ -239,102 +204,6 @@ void finishSetup()
         delay(10);
       }
     }
-
-  unsigned long now = millis();
-  #endif
-  
-  LOGV2(DEBUG_ANY, F("Hardware: %s"), mount.getMountHardwareInfo().c_str());
-
-  // Create the command processor singleton
-  LOGV1(DEBUG_ANY, F("Initialize LX200 handler..."));
-  MeadeCommandProcessor::createProcessor(&mount, &lcdMenu);
-
-  #ifdef WIFI_ENABLED
-    LOGV1(DEBUG_ANY, F("Setup Wifi..."));
-    wifiControl.setup();
-  #endif
-
-  // Configure the mount
-  // Delay for a while to get UARTs booted...
-  // TODO: remove this. serial can be checked for connection directly
-  delay(1000);  
-
-  LOGV1(DEBUG_ANY, F("Configure RA stepper..."));
-  // Set the stepper motor parameters
-  #if RA_STEPPER_TYPE == STEPPER_TYPE_28BYJ48 
-    mount.configureRAStepper(FULLSTEP_MODE, RAmotorPin1, RAmotorPin2, RAmotorPin3, RAmotorPin4, RA_STEPPER_SPEED, RA_STEPPER_ACCELERATION);
-  #elif RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-    mount.configureRAStepper(DRIVER_MODE, RAmotorPin1, RAmotorPin2, RA_STEPPER_SPEED, RA_STEPPER_ACCELERATION);
-  #else
-    #error New stepper type? Configure it here.
-  #endif
-
-  LOGV1(DEBUG_ANY, F("Configure DEC stepper..."));
-  #if DEC_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-    LOGV1(DEBUG_ANY, F("Configure DEC stepper 28BYJ-48..."));
-    mount.configureDECStepper(HALFSTEP_MODE, DECmotorPin1, DECmotorPin2, DECmotorPin3, DECmotorPin4, RA_STEPPER_SPEED, DEC_STEPPER_ACCELERATION);
-  #elif DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-    LOGV1(DEBUG_ANY, F("Configure DEC stepper NEMA..."));
-    mount.configureDECStepper(DRIVER_MODE, DECmotorPin1, DECmotorPin2, DEC_STEPPER_SPEED, DEC_STEPPER_ACCELERATION);
-  #else
-    #error New stepper type? Configure it here.
-  #endif
-
-  #if AZIMUTH_ALTITUDE_MOTORS == 1
-    LOGV1(DEBUG_ANY, F("Configure AZ stepper..."));
-    #if AZ_DRIVER_TYPE == DRIVER_TYPE_ULN2003 
-      #if AZ_MICROSTEPPING == 1
-         mount.configureAZStepper(FULLSTEP_MODE, AZmotorPin1, AZmotorPin2, AZmotorPin3, AZmotorPin4, AZ_STEPPER_SPEED, AZ_STEPPER_ACCELERATION);
-      #elif AZ_MICROSTEPPING == 2
-         mount.configureAZStepper(HALFSTEP_MODE, AZmotorPin1, AZmotorPin2, AZmotorPin3, AZmotorPin4, AZ_STEPPER_SPEED, AZ_STEPPER_ACCELERATION);
-      #endif
-    #elif AZ_DRIVER_TYPE == DRIVER_TYPE_GENERIC || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-      mount.configureAZStepper(DRIVER_MODE, AZmotorPin1, AZmotorPin2, AZ_STEPPER_SPEED, AZ_STEPPER_ACCELERATION);
-    #endif
-    #if AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-      LOGV1(DEBUG_ANY, F("Configure AZ driver..."));
-      mount.configureAZdriver(&AZ_SERIAL_PORT, R_SENSE, AZ_DRIVER_ADDRESS, AZ_RMSCURRENT, AZ_STALL_VALUE);
-    #endif
-    LOGV1(DEBUG_ANY, F("Configure Alt stepper..."));
-    #if ALT_DRIVER_TYPE == DRIVER_TYPE_ULN2003 
-      #if ALT_MICROSTEPPING == 1
-        mount.configureALTStepper(FULLSTEP_MODE, ALTmotorPin1, ALTmotorPin2, ALTmotorPin3, ALTmotorPin4, ALT_STEPPER_SPEED, ALT_STEPPER_ACCELERATION);
-      #elif ALT_MICROSTEPPING == 2
-        mount.configureALTStepper(HALFSTEP_MODE, ALTmotorPin1, ALTmotorPin2, ALTmotorPin3, ALTmotorPin4, ALT_STEPPER_SPEED, ALT_STEPPER_ACCELERATION);
-      #endif
-    #elif ALT_DRIVER_TYPE == DRIVER_TYPE_GENERIC || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-      mount.configureALTStepper(DRIVER_MODE, ALTmotorPin1, ALTmotorPin2, ALT_STEPPER_SPEED, ALT_STEPPER_ACCELERATION);
-    #endif
-    #if ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-      LOGV1(DEBUG_ANY, F("Configure ALT driver..."));
-      mount.configureALTdriver(&ALT_SERIAL_PORT, R_SENSE, ALT_DRIVER_ADDRESS, ALT_RMSCURRENT, ALT_STALL_VALUE);
-    #endif
-  #endif
-
-  // The mount uses EEPROM storage locations 0-10 that it reads during construction
-  // The LCD uses EEPROM storage location 11
-  mount.readConfiguration();
-  
-  // Read other persisted values and set in mount
-  DayTime haTime = DayTime(EPROMStore::read(1), EPROMStore::read(2), 0);
-
-  LOGV2(DEBUG_INFO, "SpeedCal: %s", String(mount.getSpeedCalibration(), 5).c_str());
-  LOGV2(DEBUG_INFO, "TRKSpeed: %s", String(mount.getSpeed(TRACKING), 5).c_str());
-
-  mount.setHA(haTime);
-
-  // For LCD screen, it's better to initialize the target to where we are (RA)
-  mount.targetRA() = mount.currentRA();
-
-  // Hook into the timers for periodic interrupts to run the steppers. 
-  mount.startTimerInterrupts();
-
-  // Start the tracker.
-  LOGV1(DEBUG_ANY, F("Start Tracking..."));
-  mount.startSlewing(TRACKING);
-
-  #if DISPLAY_TYPE > 0
-    LOGV1(DEBUG_ANY, F("Setup menu system..."));
 
     // Create the LCD top-level menu items
     lcdMenu.addItem("RA", RA_Menu);
@@ -360,13 +229,110 @@ void finishSetup()
       lcdMenu.addItem("INFO", Status_Menu);
     #endif
 
-    while (millis() - now < 750) {
-      mount.loop();
-    }
-
-    LOGV1(DEBUG_ANY, F("Update display..."));
-    lcdMenu.updateDisplay();
   #endif // DISPLAY_TYPE > 0
+  
+  LOGV2(DEBUG_ANY, F("Hardware: %s"), mount.getMountHardwareInfo().c_str());
+
+  // Create the command processor singleton
+  LOGV1(DEBUG_ANY, F("Initialize LX200 handler..."));
+  MeadeCommandProcessor::createProcessor(&mount, &lcdMenu);
+
+  #if (WIFI_ENABLED == 1)
+    LOGV1(DEBUG_ANY, F("Setup Wifi..."));
+    wifiControl.setup();
+  #endif
+
+  // Configure the mount
+  // Delay for a while to get UARTs booted...
+  // TODO: remove this. serial can be checked for connection directly
+  delay(1000);  
+
+  // Set the stepper motor parameters
+  #if RA_STEPPER_TYPE == STEPPER_TYPE_28BYJ48 
+    LOGV1(DEBUG_ANY, "Configure RA stepper 28BYJ-48...");
+    mount.configureRAStepper(RAmotorPin1, RAmotorPin2, RAmotorPin3, RAmotorPin4, RA_STEPPER_SPEED, RA_STEPPER_ACCELERATION);
+  #elif RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17
+    LOGV1(DEBUG_ANY, F("Configure RA stepper NEMA..."));
+    mount.configureRAStepper(RAmotorPin1, RAmotorPin2, RA_STEPPER_SPEED, RA_STEPPER_ACCELERATION);
+  #else
+    #error New stepper type? Configure it here.
+  #endif
+
+  #if DEC_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
+    LOGV1(DEBUG_ANY, F("Configure DEC stepper 28BYJ-48..."));
+    mount.configureDECStepper(DECmotorPin1, DECmotorPin2, DECmotorPin3, DECmotorPin4, RA_STEPPER_SPEED, DEC_STEPPER_ACCELERATION);
+  #elif DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17
+    LOGV1(DEBUG_ANY, F("Configure DEC stepper NEMA..."));
+    mount.configureDECStepper(DECmotorPin1, DECmotorPin2, DEC_STEPPER_SPEED, DEC_STEPPER_ACCELERATION);
+  #else
+    #error New stepper type? Configure it here.
+  #endif
+
+  #if AZIMUTH_ALTITUDE_MOTORS == 1
+    LOGV1(DEBUG_ANY, F("Configure AZ stepper..."));
+    #if AZ_DRIVER_TYPE == DRIVER_TYPE_ULN2003 
+      mount.configureAZStepper(AZmotorPin1, AZmotorPin2, AZmotorPin3, AZmotorPin4, AZ_STEPPER_SPEED, AZ_STEPPER_ACCELERATION);
+    #elif AZ_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
+      mount.configureAZStepper(AZmotorPin1, AZmotorPin2, AZ_STEPPER_SPEED, AZ_STEPPER_ACCELERATION);
+    #endif
+    #if AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
+      LOGV1(DEBUG_ANY, F("Configure AZ driver..."));
+      mount.configureAZdriver(&AZ_SERIAL_PORT, R_SENSE, AZ_DRIVER_ADDRESS, AZ_RMSCURRENT, AZ_STALL_VALUE);
+    #endif
+    LOGV1(DEBUG_ANY, F("Configure Alt stepper..."));
+    #if ALT_DRIVER_TYPE == DRIVER_TYPE_ULN2003 
+      mount.configureALTStepper(ALTmotorPin1, ALTmotorPin2, ALTmotorPin3, ALTmotorPin4, ALT_STEPPER_SPEED, ALT_STEPPER_ACCELERATION);
+    #elif ALT_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
+      mount.configureALTStepper(ALTmotorPin1, ALTmotorPin2, ALT_STEPPER_SPEED, ALT_STEPPER_ACCELERATION);
+    #endif
+    #if ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
+      LOGV1(DEBUG_ANY, F("Configure ALT driver..."));
+      mount.configureALTdriver(&ALT_SERIAL_PORT, R_SENSE, ALT_DRIVER_ADDRESS, ALT_RMSCURRENT, ALT_STALL_VALUE);
+    #endif
+  #endif
+
+  // The mount uses EEPROM storage locations 0-10 that it reads during construction
+  // The LCD uses EEPROM storage location 11
+  mount.readConfiguration();
+  
+  // Read other persisted values and set in mount
+  DayTime haTime = EEPROMStore::getHATime();
+
+  LOGV2(DEBUG_INFO, "SpeedCal: %s", String(mount.getSpeedCalibration(), 5).c_str());
+  LOGV2(DEBUG_INFO, "TRKSpeed: %s", String(mount.getSpeed(TRACKING), 5).c_str());
+
+  mount.setHA(haTime);
+
+  // For LCD screen, it's better to initialize the target to where we are (RA)
+  mount.targetRA() = mount.currentRA();
+
+  // Setup service to periodically service the steppers. 
+  #if (RUN_STEPPERS_IN_MAIN_LOOP != 0)
+    // Nothing to do - Mount::loop() will manage steppers in-line
+
+  #elif defined(ESP32)
+
+    disableCore0WDT();
+    xTaskCreatePinnedToCore(
+      stepperControlTask,    // Function to run on this core
+      "StepperControl",      // Name of this task
+      32767,                 // Stack space in bytes
+      &mount,                // payload
+      2,                     // Priority (2 is higher than 1)
+      &StepperTask,          // The location that receives the thread id
+      0);                    // The core to run this on
+      
+  #else
+    // 2 kHz updates (higher frequency interferes with serial communications and complete messes up OATControl communications)
+    if (!InterruptCallback::setInterval(0.5f, stepperControlTimerCallback, &mount))
+    {
+      LOGV1(DEBUG_MOUNT, F("CANNOT setup interrupt timer!"));
+    }
+  #endif
+
+  // Start the tracker.
+  LOGV1(DEBUG_ANY, F("Start Tracking..."));
+  mount.startSlewing(TRACKING);
 
   mount.bootComplete();
   LOGV1(DEBUG_ANY, F("Boot complete!"));

@@ -1,6 +1,7 @@
 #pragma once
+
+#include "../Configuration.hpp"
 #include "EPROMStore.hpp"
-#include "../Configuration_adv.hpp"
 
 #if DISPLAY_TYPE > 0
 #if USE_GPS == 0
@@ -35,8 +36,7 @@ bool processHAKeys() {
       break;
 
       case btnSELECT: {
-        EPROMStore::update(1, mount.HA().getHours());
-        EPROMStore::update(2, mount.HA().getMinutes());
+        EEPROMStore::storeHATime(mount.HA());
         lcdMenu.printMenu("Stored.");
         mount.delay(500);
 

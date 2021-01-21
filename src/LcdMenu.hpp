@@ -1,12 +1,12 @@
 #ifndef _LCDMENU_HPP_
 #define _LCDMENU_HPP_
-#include <Arduino.h>
-#include "../Configuration_adv.hpp"
 
 #if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD
 #include <LiquidCrystal.h>
 #elif DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017
 #include <LiquidTWI2.h>
+#elif DISPLAY_TYPE == DISPLAY_TYPE_LCD_JOY_I2C_SSD1306
+#include <U8x8lib.h>        // https://github.com/olikraus/u8g2
 #endif
 
 // A single menu item (like RA, HEAT, POL, etc.)
@@ -87,16 +87,19 @@ private:
 private:
 #if DISPLAY_TYPE > 0
 
-  byte _cols;
-  byte _rows;
-  byte _maxItems;
-
   #if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD
     LiquidCrystal _lcd;   // The LCD screen that we'll display the menu on
   #elif DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017
     LiquidTWI2 _lcd;   // The LCD screen that we'll display the menu on
+  #elif DISPLAY_TYPE == DISPLAY_TYPE_LCD_JOY_I2C_SSD1306
+    U8X8_SSD1306_128X32_UNIVISION_HW_I2C _lcd;  
   #endif
   
+  byte const _cols;
+  byte const _rows;
+  byte const _maxItems;
+  byte const _charHeightRows;   // Height of character in display native rows
+
   MenuItem** _menuItems;  // The first menu item (linked list)
   byte _numMenuItems;
   byte _activeMenuIndex;
@@ -105,8 +108,9 @@ private:
   byte _activeRow;        // The row that the LCD cursor is on
   byte _activeCol;        // The column that the LCD cursor is on
   String _lastDisplay[2]; // The last string that was displayed on each row
-  int _brightness;
+  byte _brightness;
 
+#if DISPLAY_TYPE != DISPLAY_TYPE_LCD_JOY_I2C_SSD1306
   byte _degrees = 1;
   byte _minutes = 2;
   byte _leftArrow = 3;
@@ -115,7 +119,6 @@ private:
   byte _downArrow = 6;
   byte _tracking = 7;
   byte _noTracking = 0;
-
 
   // The special character bitmaps
   static byte RightArrowBitmap[8];
@@ -126,6 +129,7 @@ private:
   static byte MinutesBitmap[8];
   static byte TrackingBitmap[8];
   static byte NoTrackingBitmap[8];
+#endif
 
 #endif
 };

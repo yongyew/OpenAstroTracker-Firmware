@@ -1,17 +1,11 @@
 #ifndef UTILITY_HPP_
 #define UTILITY_HPP_
 
-#include <Arduino.h>
-#include "LcdMenu.hpp"
-#include "../Configuration_adv.hpp"
+#include "inc/Globals.hpp"
 
-// LCD shield buttons
-#define btnRIGHT  0
-#define btnUP     1
-#define btnDOWN   2
-#define btnLEFT   3
-#define btnSELECT 4
-#define btnNONE   5
+#ifndef DEBUG_LEVEL
+  #error Configuration.hpp must be included before Utility.hpp for correct debug configuration
+#endif
 
 String getLogBuffer();
 int freeMemory();
@@ -137,107 +131,6 @@ void logv(int levelFlags, String input, ...);
 
 #endif // DEBUG_LEVEL>0
 
-class LcdButtons {
-public:
-  LcdButtons(byte pin, LcdMenu* lcdMenu) {
-    _lcdMenu = lcdMenu;
-    _analogPin = pin;
-    _lastKeyChange = 0;
-
-    _newKey = -1;
-    _lastNewKey = -2;
-
-    _currentKey = -1;
-    _lastKey = -2;
-  }
-
-  LcdButtons(LcdMenu* lcdMenu) {
-    _lcdMenu = lcdMenu;
-    _lastKeyChange = 0;
-
-    _newKey = -1;
-    _lastNewKey = -2;
-
-    _currentKey = -1;
-    _lastKey = -2;
-  }
-  
-  byte currentKey() {
-    checkKey();
-    return _newKey;
-  }
-
-  byte currentState() {
-    checkKey();
-    return _currentKey;
-  }
-
-  int currentAnalogState() {
-    checkKey();
-    return _analogKeyValue;
-  }
-
-  bool keyChanged(byte* pNewKey) {
-    checkKey();
-    if (_newKey != _lastNewKey) {
-      *pNewKey = _newKey;
-      _lastNewKey = _newKey;
-      return true;
-    }
-    return false;
-  }
-
-private:
-  void checkKey() {
-    
-    #if DISPLAY_TYPE > 0
-    #if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017
-    uint8_t buttons = _lcdMenu->readButtons();
-    _currentKey = btnNONE;
-    if (buttons)
-    {
-      if (buttons & BUTTON_UP) _currentKey = btnUP;
-      if (buttons & BUTTON_DOWN) _currentKey = btnDOWN;  
-      if (buttons & BUTTON_LEFT) _currentKey = btnLEFT;
-      if (buttons & BUTTON_RIGHT) _currentKey = btnRIGHT;
-      if (buttons & BUTTON_SELECT) _currentKey = btnSELECT;
-    }
-    #else
-    _analogKeyValue = analogRead(_analogPin);
-    if (_analogKeyValue > 1000) _currentKey = btnNONE;
-    else if (_analogKeyValue < 50)   _currentKey = btnRIGHT;
-    else if (_analogKeyValue < 240)  _currentKey = btnUP;
-    else if (_analogKeyValue < 400)  _currentKey = btnDOWN;
-    else if (_analogKeyValue < 600)  _currentKey = btnLEFT;
-    else if (_analogKeyValue < 920)  _currentKey = btnSELECT;
-    #endif
-
-    if (_currentKey != _lastKey) {
-      _lastKey = _currentKey;
-      _lastKeyChange = millis();
-    }
-    else {
-      // If the keys haven't changed in 5ms, commit the change to the new keys.
-      if (millis() - _lastKeyChange > 5) {
-        _newKey = _currentKey;
-      }
-    }
-    #endif
-  }
-
-private:
-
-  unsigned long _lastKeyChange;
-  byte _analogPin;
-  int _analogKeyValue;
-  byte _lastKey;
-  byte _newKey;
-  byte _lastNewKey;
-  byte _currentKey;
-  LcdMenu* _lcdMenu;
-};
-
-
 // Adjust the given number by the given adjustment, wrap around the limits.
 // Limits are inclusive, so they represent the lowest and highest valid number.
 int adjustWrap(int current, int adjustBy, int minVal, int maxVal);
@@ -263,8 +156,5 @@ int sign(long num);
 
 // Return -1 if the given number is less than zero, 1 if not.
 int fsign(float num);
-
-// Read the LCD Shield's key state and return the button being pressed (btnUP, etc.).
-//int read_LCD_buttons();
 
 #endif
