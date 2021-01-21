@@ -1,5 +1,9 @@
 #include "hal.h"
 
+#include "../../Constants.hpp"
+#include "../../Configuration.hpp"
+#include "../../Configuration_adv.hpp"
+
 #include "driver/TMC2209.hpp"
 
 #define RA_TRANSMISSION RA_WHEEL_CIRCUMFERENCE / RA_PULLEY_TEETH * 2.0

@@ -1,6 +1,6 @@
 #include "RaAxis.hpp"
 
-#include "../../inc/Config.hpp"
+#include "../../../Constants.hpp"
 
 RaAxis::RaAxis(
     const float transmission,

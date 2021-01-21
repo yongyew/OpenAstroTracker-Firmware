@@ -70,42 +70,42 @@ const float siderealDegreesInHour = 14.95904348958;
 // CTOR
 //
 /////////////////////////////////
-Mount::Mount(LcdMenu* lcdMenu) :
-  _stepsPerRADegree(RA_STEPS_PER_DEGREE),   // u-steps per degree when slewing
-  _stepsPerDECDegree(DEC_STEPS_PER_DEGREE)  // u-steps per degree when slewing
-  #if AZIMUTH_ALTITUDE_MOTORS == 1
-    , _stepsPerAZDegree(AZIMUTH_STEPS_PER_REV / 360),
-    _stepsPerALTDegree(ALTITUDE_STEPS_PER_REV / 360),
-    _azAltWasRunning(false)
-  #endif
-{
-  _lcdMenu = lcdMenu;
-  _mountStatus = 0;
-  _lastDisplayUpdate = 0;
-  _stepperWasRunning = false;
-  _latitude = Latitude(45.0);
-  _longitude = Longitude(100.0);
+// Mount::Mount(LcdMenu* lcdMenu) :
+//   _stepsPerRADegree(RA_STEPS_PER_DEGREE),   // u-steps per degree when slewing
+//   _stepsPerDECDegree(DEC_STEPS_PER_DEGREE)  // u-steps per degree when slewing
+//   #if AZIMUTH_ALTITUDE_MOTORS == 1
+//     , _stepsPerAZDegree(AZIMUTH_STEPS_PER_REV / 360),
+//     _stepsPerALTDegree(ALTITUDE_STEPS_PER_REV / 360),
+//     _azAltWasRunning(false)
+//   #endif
+// {
+//   _lcdMenu = lcdMenu;
+//   _mountStatus = 0;
+//   _lastDisplayUpdate = 0;
+//   _stepperWasRunning = false;
+//   _latitude = Latitude(45.0);
+//   _longitude = Longitude(100.0);
 
-  _compensateForTrackerOff = false;
-  _trackerStoppedAt = 0;
+//   _compensateForTrackerOff = false;
+//   _trackerStoppedAt = 0;
 
-  _totalDECMove = 0;
-  _totalRAMove = 0;
-  _moveRate = 4;
-  _backlashCorrectionSteps = 0;
-  _correctForBacklash = false;
-  _slewingToHome = false;
-  _slewingToPark = false;
-  _raParkingPos  = 0;
-  _decParkingPos = 0;
-  _decLowerLimit = 0;
-  _decUpperLimit = 0;
+//   _totalDECMove = 0;
+//   _totalRAMove = 0;
+//   _moveRate = 4;
+//   _backlashCorrectionSteps = 0;
+//   _correctForBacklash = false;
+//   _slewingToHome = false;
+//   _slewingToPark = false;
+//   _raParkingPos  = 0;
+//   _decParkingPos = 0;
+//   _decLowerLimit = 0;
+//   _decUpperLimit = 0;
     
-  #if USE_GYRO_LEVEL == 1
-  _pitchCalibrationAngle = 0;
-  _rollCalibrationAngle = 0;
-  #endif
-}
+//   #if USE_GYRO_LEVEL == 1
+//   _pitchCalibrationAngle = 0;
+//   _rollCalibrationAngle = 0;
+//   #endif
+// }
 
 Mount::Mount(RaAxis &raAxis, DecAxis &decAxis)
 {

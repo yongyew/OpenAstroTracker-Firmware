@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include "../inc/Config.hpp"
-
 #include "axis/RaAxis.hpp"
 #include "axis/DecAxis.hpp"
 
