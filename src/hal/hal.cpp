@@ -6,6 +6,8 @@
 
 #include "driver/TMC2209.hpp"
 
+#include "SoftwareSerial.h"
+
 #define RA_TRANSMISSION RA_WHEEL_CIRCUMFERENCE / RA_PULLEY_TEETH * 2.0
 #define DEC_TRANSMISSION DEC_WHEEL_CIRCUMFERENCE / DEC_PULLEY_TEETH * 2.0
 

@@ -1,6 +1,6 @@
 #include "StepperSpecs.hpp"
 
-#include "math.h"
+#define SQRT2 1.41421356237309504880
 
 StepperSpecs::StepperSpecs(
     const int spr,
@@ -20,7 +20,7 @@ int StepperSpecs::getStepsPerRevolution() const
 
 float StepperSpecs::getRMSCurrent() const
 {
-    return ratedCurrent * M_SQRT2;
+    return ratedCurrent * SQRT2;
 }
 
 float StepperSpecs::getMaxSpeed() const

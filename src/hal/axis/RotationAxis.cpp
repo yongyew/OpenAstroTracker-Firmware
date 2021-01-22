@@ -4,9 +4,9 @@
 
 RotationAxis::RotationAxis(
     const float transmission,
-    Driver &driver) : transmission(transmission),
-                      driver(driver),
-                      currentPosition(0.0f) {}
+    Driver &driver) : currentPosition(0.0f),
+                      transmission(transmission),
+                      driver(driver) {}
 
 void RotationAxis::setup()
 {

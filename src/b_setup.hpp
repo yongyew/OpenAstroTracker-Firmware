@@ -30,12 +30,12 @@ LcdButtons lcdButtons(&lcdMenu);
 #endif
 #endif
 
-#ifdef ESP32
-DRAM_ATTR Mount mount(&lcdMenu);
-#else
+// #ifdef ESP32
+// DRAM_ATTR Mount mount(&lcdMenu);
+// #else
 // Mount mount(RA_STEPS_PER_DEGREE, DEC_STEPS_PER_DEGREE, &lcdMenu);
 Mount mount(hal::axis::ra, hal::axis::dec);
-#endif
+// #endif
 
 #include "g_bluetooth.hpp"
 
