@@ -118,7 +118,7 @@ for c in allowed_combinations:
     run_commands.append(
         {
             "env.PLATFORMIO_BUILD_FLAGS": flags_str,
-            "command": "pio run -e {}".format(c['env'])
+            "command": "pio run -s -e {}".format(c['env'])
         }
     )
 
@@ -129,8 +129,7 @@ for c in allowed_combinations:
 errors = []
 
 for index,command in enumerate(run_commands):
-    print(f"Building {index+1} of {len(allowed_combinations)} permutations...")
-    print(command)
+    print(f"[{index+1}/{len(allowed_combinations)}] {command}")
     os.environ['PLATFORMIO_BUILD_FLAGS'] = command['env.PLATFORMIO_BUILD_FLAGS']
     result = os.system(command['command'])
     if result:
