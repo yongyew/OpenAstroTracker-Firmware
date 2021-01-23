@@ -17,6 +17,7 @@ void Driver::setMicrostepping(uint16_t microstepping)
     if (microstepping == this->microstepping)
         return;
 
+    // only update microstepping if it is supported by the driver
     if (getAvailableMicrosteppingModes() & microstepping)
     {
         this->microstepping = microstepping;

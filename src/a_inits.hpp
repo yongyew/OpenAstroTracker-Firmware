@@ -1,6 +1,5 @@
 #pragma once
 
-#include <AccelStepper.h>
 #include "inc/Globals.hpp"
 
 #include "Utility.hpp"
@@ -8,55 +7,12 @@
 #include "Mount.hpp"
 #include "MeadeCommandProcessor.hpp"
 
-// TODO: we have to change driver type to DRIVER_TYPE_TMC2209 and add a new definition for the actual mode (e.g. DRIVER_MODE_UART)
-#if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-  #include <TMCStepper.h>
-#endif
-
 #if USE_GPS == 1
 //#include <SoftwareSerial.h>
 #include <TinyGPS++.h>
 
 //SoftwareSerial SoftSerial(GPS_SERIAL_RX_PIN, GPS_SERIAL_TX_PIN); // RX, TX
 TinyGPSPlus gps;
-#endif
-
-////////////////////////////////////
-// Stepper definitions /////////////
-#if RA_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-// RA Motor pins
-#if RA_INVERT_DIR == 1
-#define RAmotorPin1 RA_IN1_PIN // IN1 auf ULN2003 driver 1
-#define RAmotorPin3 RA_IN2_PIN // IN2 auf ULN2003 driver 1
-#define RAmotorPin2 RA_IN3_PIN // IN3 auf ULN2003 driver 1
-#define RAmotorPin4 RA_IN4_PIN // IN4 auf ULN2003 driver 1
-#else
-#define RAmotorPin1 RA_IN4_PIN // IN1 auf ULN2003 driver 1
-#define RAmotorPin3 RA_IN3_PIN // IN2 auf ULN2003 driver 1
-#define RAmotorPin2 RA_IN2_PIN // IN3 auf ULN2003 driver 1
-#define RAmotorPin4 RA_IN1_PIN // IN4 auf ULN2003 driver 1
-#endif
-#elif RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-#define RAmotorPin1 RA_STEP_PIN
-#define RAmotorPin2 RA_DIR_PIN
-#endif
-
-// DEC Motor pins
-#if DEC_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-#if DEC_INVERT_DIR == 1
-#define DECmotorPin1 DEC_IN4_PIN // IN1 auf ULN2003 driver 2
-#define DECmotorPin3 DEC_IN3_PIN // IN2 auf ULN2003 driver 2
-#define DECmotorPin2 DEC_IN2_PIN // IN3 auf ULN2003 driver 2
-#define DECmotorPin4 DEC_IN1_PIN // IN4 auf ULN2003 driver 2
-#else
-#define DECmotorPin1 DEC_IN1_PIN // IN1 auf ULN2003 driver 2
-#define DECmotorPin3 DEC_IN2_PIN // IN2 auf ULN2003 driver 2
-#define DECmotorPin2 DEC_IN3_PIN // IN3 auf ULN2003 driver 2
-#define DECmotorPin4 DEC_IN4_PIN // IN4 auf ULN2003 driver 2
-#endif
-#elif DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-#define DECmotorPin1 DEC_STEP_PIN
-#define DECmotorPin2 DEC_DIR_PIN
 #endif
 
 // AZ/ALT Motor pins

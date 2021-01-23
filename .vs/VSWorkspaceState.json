@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\hal",
+    "\\src\\hal\\driver"
+  ],
+  "SelectedNode": "\\src\\hal\\driver\\ULN2003.cpp",
+  "PreviewInSolutionExplorer": false
+}

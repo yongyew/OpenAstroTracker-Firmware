@@ -41,24 +41,19 @@
 #endif
 
 // Include the user-specific local configuration
-#if defined(ESP32) && __has_include("Configuration_local_esp32.hpp")                // ESP32
-    #include "Configuration_local_esp32.hpp"
-#elif defined(__AVR_ATmega2560__) && __has_include("Configuration_local_mega.hpp")  // Mega2560
-    #include "Configuration_local_mega.hpp"
-#elif __has_include("Configuration_local_CI.hpp")                                   // CI environment on GitHub
-    #include "Configuration_local_CI.hpp"
-#elif __has_include("Configuration_local.hpp")                                      // Custom config
-    #include "Configuration_local.hpp"
-#endif
+// #if defined(ESP32) && __has_include("Configuration_local_esp32.hpp")                // ESP32
+//     #include "Configuration_local_esp32.hpp"
+// #elif defined(__AVR_ATmega2560__) && __has_include("Configuration_local_mega.hpp")  // Mega2560
+//     #include "Configuration_local_mega.hpp"
+// #elif __has_include("Configuration_local_CI.hpp")                                   // CI environment on GitHub
+//     #include "Configuration_local_CI.hpp"
+// #elif __has_include("Configuration_local.hpp")                                      // Custom config
+//     #include "Configuration_local.hpp"
+// #endif
 
 /**
  * Use default values for any parameters the user didn't provide.
  */
-
-// If board is not defined in local configuration, assume Arduino Mega2560
-#ifndef BOARD
-  #define BOARD BOARD_AVR_MEGA2560
-#endif
 
 // Set to 1 for the northern hemisphere, 0 otherwise
 #ifndef NORTHERN_HEMISPHERE

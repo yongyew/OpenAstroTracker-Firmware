@@ -7,16 +7,24 @@
  **/
 
 /**
+ * Supported platforms
+ **/
+#define PLATFORM_MASK   0xF0
+#define PLATFORM_AVR    0x00
+#define PLATFORM_ESP32  0x10
+
+/**
  * Supported boards. The name consists of the platform and the board name (model).
  **/
+
 // AVR based boards
-#define BOARD_AVR_MEGA2560       0001
-#define BOARD_AVR_MKS_GEN_L_V21  0002
-#define BOARD_AVR_MKS_GEN_L_V2   0003
-#define BOARD_AVR_MKS_GEN_L_V1   0004
+#define BOARD_AVR_MEGA2560       0x01
+#define BOARD_AVR_MKS_GEN_L_V21  0x02
+#define BOARD_AVR_MKS_GEN_L_V2   0x03
+#define BOARD_AVR_MKS_GEN_L_V1   0x04
 
 // ESP32 based boards
-#define BOARD_ESP32_ESP32DEV     1001
+#define BOARD_ESP32_ESP32DEV     0x11
 
 /**
  * Supported display types. Use one of these values for DISPLAY_TYPE configuration matching your used display.

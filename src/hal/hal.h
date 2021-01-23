@@ -6,24 +6,36 @@
 
 #pragma once
 
+#include "../Constants.hpp"
+#include "../Configuration.hpp"
+
+#define PLATFORM (BOARD & PLATFORM_MASK)
+
+#if PLATFORM == PLATFORM_AVR
+#include "platform/AVR/platform.h"
+#elif PLATFORM == PLATFORM_ESP32
+#include "platform/ESP32/platform.h"
+#else 
+#error Unsupported platform
+#endif
+
 #include "axis/RaAxis.hpp"
 #include "axis/DecAxis.hpp"
-
-// load the platform
-#if defined(__AVR__)
-#include "platform/AVR/platform.h"
-#elif defined(ARDUINO_ARCH_ESP32)
-#include "platform/ESP32/platform.h"
-#endif
 
 #if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
 #include "driver/TMC2209.hpp"
 typedef TMC2209 RaDriver;
+#elif RA_DRIVER_TYPE == DRIVER_TYPE_ULN2003
+#include "driver/ULN2003.hpp"
+typedef ULN2003 RaDriver;
 #endif
 
 #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
 #include "driver/TMC2209.hpp"
 typedef TMC2209 DecDriver;
+#elif DEC_DRIVER_TYPE == DRIVER_TYPE_ULN2003
+#include "driver/ULN2003.hpp"
+typedef ULN2003 DecDriver;
 #endif
 
 namespace hal 

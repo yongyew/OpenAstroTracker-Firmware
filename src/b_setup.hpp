@@ -245,28 +245,7 @@ void setup() {
   // Configure the mount
   // Delay for a while to get UARTs booted...
   // TODO: remove this. serial can be checked for connection directly
-  delay(1000);  
-
-  // Set the stepper motor parameters
-  #if RA_STEPPER_TYPE == STEPPER_TYPE_28BYJ48 
-    LOGV1(DEBUG_ANY, "Configure RA stepper 28BYJ-48...");
-    mount.configureRAStepper(RAmotorPin1, RAmotorPin2, RAmotorPin3, RAmotorPin4, RA_STEPPER_SPEED, RA_STEPPER_ACCELERATION);
-  #elif RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-    LOGV1(DEBUG_ANY, F("Configure RA stepper NEMA..."));
-    mount.configureRAStepper(RAmotorPin1, RAmotorPin2, RA_STEPPER_SPEED, RA_STEPPER_ACCELERATION);
-  #else
-    #error New stepper type? Configure it here.
-  #endif
-
-  #if DEC_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-    LOGV1(DEBUG_ANY, F("Configure DEC stepper 28BYJ-48..."));
-    mount.configureDECStepper(DECmotorPin1, DECmotorPin2, DECmotorPin3, DECmotorPin4, RA_STEPPER_SPEED, DEC_STEPPER_ACCELERATION);
-  #elif DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-    LOGV1(DEBUG_ANY, F("Configure DEC stepper NEMA..."));
-    mount.configureDECStepper(DECmotorPin1, DECmotorPin2, DEC_STEPPER_SPEED, DEC_STEPPER_ACCELERATION);
-  #else
-    #error New stepper type? Configure it here.
-  #endif
+  delay(1000);
 
   #if AZIMUTH_ALTITUDE_MOTORS == 1
     LOGV1(DEBUG_ANY, F("Configure AZ stepper..."));
