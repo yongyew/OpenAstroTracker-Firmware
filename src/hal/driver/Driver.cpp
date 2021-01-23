@@ -21,7 +21,7 @@ void Driver::setMicrostepping(uint16_t microstepping)
     if (getAvailableMicrosteppingModes() & microstepping)
     {
         this->microstepping = microstepping;
-        updateMicrostepping(microstepping);
+        onMicrosteppingChanged();
     }
     else
     {
@@ -29,7 +29,25 @@ void Driver::setMicrostepping(uint16_t microstepping)
     }
 }
 
+void Driver::setDirection(const Direction direction)
+{
+    if (direction != this->direction) {
+        this->direction = direction;
+        onDirectionChanged();
+    }
+}
+
 uint16_t Driver::getMicrostepping() const
 {
     return microstepping;
+}
+
+void Driver::onMicrosteppingChanged()
+{
+    // nothing to do here
+}
+
+void Driver::onDirectionChanged()
+{
+    // nothing to do here
 }

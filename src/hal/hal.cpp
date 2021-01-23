@@ -31,7 +31,12 @@ namespace hal
             RA_STEP_PIN,
             RA_DIR_PIN);
 #elif RA_DRIVER_TYPE == DRIVER_TYPE_ULN2003
-        ULN2003 raDriver(raStepper);
+        ULN2003 raDriver(
+            raStepper,
+            RA_IN1_PIN,
+            RA_IN2_PIN,
+            RA_IN3_PIN,
+            RA_IN4_PIN);
 #endif
 
         RaAxis ra(
@@ -57,7 +62,12 @@ namespace hal
             DEC_STEP_PIN,
             DEC_DIR_PIN);
 #elif DEC_DRIVER_TYPE == DRIVER_TYPE_ULN2003
-        ULN2003 decDriver(decStepper);
+        ULN2003 decDriver(
+            decStepper,
+            DEC_IN1_PIN,
+            DEC_IN2_PIN,
+            DEC_IN3_PIN,
+            DEC_IN4_PIN);
 #endif
 
         DecAxis dec(

@@ -23,10 +23,9 @@ public:
 
     void step() override;
 
-    void setDirection(Direction direction) override;
-
 protected:
-    void updateMicrostepping(const uint16_t microstepping) override;
+    void onMicrosteppingChanged() override;
+    void onDirectionChanged() override;
 
 private:
     TMC2209Stepper tmcStepper;

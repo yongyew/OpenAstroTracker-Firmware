@@ -5,7 +5,12 @@
 class ULN2003 : public Driver
 {
 public:
-    ULN2003(const StepperSpecs &stepper);
+    ULN2003(
+        const StepperSpecs &stepper,
+        const uint8_t pin_in1,
+        const uint8_t pin_in2,
+        const uint8_t pin_in3,
+        const uint8_t pin_in4);
 
     void setup() override;
 
@@ -15,8 +20,15 @@ public:
 
     void step() override;
 
-    void setDirection(Direction direction) override;
-
 protected:
-    void updateMicrostepping(const uint16_t microstepping) override;
+    void onMicrosteppingChanged() override;
+    void onDirectionChanged() override;
+
+private:
+    const uint8_t pin_in1;
+    const uint8_t pin_in2;
+    const uint8_t pin_in3;
+    const uint8_t pin_in4;
+
+    uint8_t state;
 };

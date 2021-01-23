@@ -54,24 +54,6 @@ class Mount {
 public:
   Mount(RaAxis &raAxis, DecAxis &decAxis);
 
-  static Mount instance();
-
-  // Configure the RA stepper motor. This also sets up the TRK stepper on the same pins.
-#if RA_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-    void configureRAStepper(byte pin1, byte pin2, byte pin3, byte pin4, int maxSpeed, int maxAcceleration);
-#endif
-#if RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-    void configureRAStepper(byte pin1, byte pin2, int maxSpeed, int maxAcceleration);
-#endif
-
-  // Configure the DEC stepper motor.
-#if DEC_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-    void configureDECStepper(byte pin1, byte pin2, byte pin3, byte pin4, int maxSpeed, int maxAcceleration);
-#endif
-#if DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-    void configureDECStepper(byte pin1, byte pin2, int maxSpeed, int maxAcceleration);
-#endif
-
 // Configure the AZ/ALT stepper motors.
 #if AZIMUTH_ALTITUDE_MOTORS == 1
   #if AZ_DRIVER_TYPE == DRIVER_TYPE_ULN2003
@@ -84,15 +66,6 @@ public:
   #elif ALT_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
     void configureALTStepper(byte pin1, byte pin2, int maxSpeed, int maxAcceleration);
   #endif
-#endif
-
-#if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-// Configure the RA Driver (TMC2209 UART only)
-  void configureRAdriver(Stream *serial, float rsense, byte driveraddress, int rmscurrent, int stallvalue);
-#endif
-#if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-  // Configure the DEC Driver (TMC2209 UART only)
-  void configureDECdriver(Stream *serial, float rsense, byte driveraddress, int rmscurrent, int stallvalue);
 #endif
 
 // Configure the AZ/ALT drivers.

@@ -72,7 +72,7 @@ uint16_t TMC2209::getMaxSpeed() const
     return stepper.getMaxSpeed() * microstepping;
 }
 
-void TMC2209::updateMicrostepping(const uint16_t microstepping)
+void TMC2209::onMicrosteppingChanged()
 {
     if (microstepping <= 1)
     {
@@ -97,18 +97,7 @@ void TMC2209::step()
     // TODO: handle other modes (standalone, full uart etc.)
 }
 
-void TMC2209::setDirection(Direction direction)
+void TMC2209::onDirectionChanged()
 {
-    // TODO: recheck if direction is set correctly
-    switch (direction)
-    {
-    case CLOCKWISE:
-        digitalWrite(pin_dir, HIGH);
-        break;
-    case ANTICLOCKWISE:
-        digitalWrite(pin_dir, LOW);
-        break;
-    default:
-        break;
-    }
+    digitalWrite(pin_dir, direction);
 }

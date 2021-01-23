@@ -20,8 +20,8 @@ public:
         ANTICLOCKWISE = -1
     };
 
-    template<class T>
-    static T* create();
+    template <class T>
+    static T *create();
 
     /**
      * Construct new driver with provided hardware specifications.
@@ -69,10 +69,18 @@ public:
      */
     virtual void step() = 0;
 
-    virtual void setDirection(Direction direction) = 0;
+    /**
+     * Set rotation direction to be used for the steps after this call. If the provided direction differs from the 
+     * previos one, onDIrectionChanged will be called on the subclass instance.
+     * 
+     * @param direction rotation direction
+     */
+    void setDirection(const Direction direction);
 
 protected:
-    virtual void updateMicrostepping(uint16_t microstepping) = 0;
+    virtual void onMicrosteppingChanged() = 0;
+
+    virtual void onDirectionChanged() = 0;
 
     const StepperSpecs &stepper;
 
