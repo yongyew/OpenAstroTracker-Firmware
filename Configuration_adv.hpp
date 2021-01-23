@@ -83,19 +83,6 @@
   #error Unknown RA driver type
 #endif
 
-#if (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-  #define DEC_SLEW_MICROSTEPPING  16  // The (default) microstep mode used for slewing DEC
-  #define DEC_GUIDE_MICROSTEPPING 16  // The fine microstep mode used for guiding DEC only
-#elif (DEC_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
-  #define DEC_SLEW_MICROSTEPPING  16  // Only UART drivers support dynamic switching. Use the same microstep mode for both slewing & guiding
-  #define DEC_GUIDE_MICROSTEPPING DEC_SLEW_MICROSTEPPING
-#elif (DEC_DRIVER_TYPE == DRIVER_TYPE_ULN2003)
-  #define DEC_SLEW_MICROSTEPPING   2  // Runs in half-step mode always
-  #define DEC_GUIDE_MICROSTEPPING DEC_SLEW_MICROSTEPPING
-#else
-  #error Unknown DEC driver type
-#endif
-
 // Extended TMC2209 UART settings
 // These settings work only with TMC2209 in UART connection (single wire to TX)
 #if (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)

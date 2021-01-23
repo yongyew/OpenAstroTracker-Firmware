@@ -228,31 +228,6 @@ void Mount::readPersistentData()
 
 /////////////////////////////////
 //
-// configureDECdriver
-// TMC2209 UART only
-/////////////////////////////////
-#if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-  void Mount::configureDECdriver(Stream *serial, float rsense, byte driveraddress, int rmscurrent, int stallvalue)
-  {
-    _driverDEC = new TMC2209Stepper(serial, rsense, driveraddress);
-    _driverDEC->begin();
-    _driverDEC->blank_time(24);
-    #if DEC_AUDIO_FEEDBACK == 1
-    _driverDEC->en_spreadCycle(1);
-    #endif
-    _driverDEC->rms_current(rmscurrent);
-    _driverDEC->microsteps(DEC_SLEW_MICROSTEPPING == 1 ? 0 : DEC_SLEW_MICROSTEPPING);   // If 1 then disable microstepping
-    _driverDEC->TCOOLTHRS(0xFFFFF);
-    _driverDEC->semin(5);
-    _driverDEC->semax(2);
-    _driverDEC->sedn(0b01);
-    _driverDEC->SGTHRS(stallvalue);
-    _driverDEC->ihold(DEC_HOLDCURRENT);
-  }
-#endif
-
-/////////////////////////////////
-//
 // configureAZdriver
 // TMC2209 UART only
 /////////////////////////////////
