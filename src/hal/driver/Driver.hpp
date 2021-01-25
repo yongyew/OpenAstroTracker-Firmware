@@ -20,15 +20,14 @@ public:
         ANTICLOCKWISE = -1
     };
 
-    template <class T>
-    static T *create();
-
     /**
      * Construct new driver with provided hardware specifications.
      * 
-     * stepper - reference to the stepper specifications
+     * @param stepper reference to the stepper specifications.
+     * @param microstepping microstepping mode to be used.
+     * @param direction initial direction to be used. Defaults to clockwise.
      */
-    Driver(const StepperSpecs &stepper);
+    Driver(const StepperSpecs &stepper, const uint16_t microstepping, const Direction direction = Direction::CLOCKWISE);
 
     /**
      * Perform required preparations (e.g. setting up UART connection, max speed,
@@ -42,22 +41,9 @@ public:
     const StepperSpecs &getStepperSpecs() const;
 
     /**
-     * Return available microstepping modes as bitmask of 16 bits. Modes are 
-     * represented from lowest to highest bit (1,2,4,8,16,32,64,128,256...) respectively.
-     * E.g. 0000_0000_0000_1011 stands for available modes: full step, half step and 8.
-     * If microstepping is not supported, this function will return value 1.
+     * Get microstepping.
      */
-    virtual uint16_t getAvailableMicrosteppingModes() const = 0;
-
-    /**
-     * Set microstepping. The value has to be power of 2 between 1 and 256.
-     */
-    void setMicrostepping(const uint16_t microstepping);
-
-    /**
-     * Get currently selected microstepping mode.
-     */
-    uint16_t getMicrostepping() const;
+    const uint16_t getMicrostepping() const;
 
     /**
      * Return maximal speed (steps per second) taking microstepping and driver characteristics into account.
@@ -78,13 +64,11 @@ public:
     void setDirection(const Direction direction);
 
 protected:
-    virtual void onMicrosteppingChanged() = 0;
-
     virtual void onDirectionChanged() = 0;
 
     const StepperSpecs &stepper;
 
-    uint16_t microstepping;
+    const uint16_t microstepping;
 
     Direction direction = CLOCKWISE;
 };

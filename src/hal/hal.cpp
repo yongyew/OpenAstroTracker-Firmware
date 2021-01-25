@@ -25,6 +25,7 @@ namespace hal
         SoftwareSerial raSerial(RA_SERIAL_PORT_RX, RA_SERIAL_PORT_TX);
         TMC2209 raDriver(
             raStepper,
+            RA_MICROSTEPPING,
             &raSerial,
             RA_DRIVER_ADDRESS,
             RA_EN_PIN,
@@ -33,6 +34,7 @@ namespace hal
 #elif RA_DRIVER_TYPE == DRIVER_TYPE_ULN2003
         ULN2003 raDriver(
             raStepper,
+            RA_MICROSTEPPING,
             RA_IN1_PIN,
             RA_IN2_PIN,
             RA_IN3_PIN,
@@ -56,6 +58,7 @@ namespace hal
         SoftwareSerial decSerial(DEC_SERIAL_PORT_RX, DEC_SERIAL_PORT_TX);
         TMC2209 decDriver(
             decStepper,
+            DEC_MICROSTEPPING,
             &decSerial,
             DEC_DRIVER_ADDRESS,
             DEC_EN_PIN,
@@ -64,6 +67,7 @@ namespace hal
 #elif DEC_DRIVER_TYPE == DRIVER_TYPE_ULN2003
         ULN2003 decDriver(
             decStepper,
+            DEC_MICROSTEPPING,
             DEC_IN1_PIN,
             DEC_IN2_PIN,
             DEC_IN3_PIN,

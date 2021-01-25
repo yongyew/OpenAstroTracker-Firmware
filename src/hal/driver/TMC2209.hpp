@@ -9,6 +9,7 @@ class TMC2209 : public Driver
 {
 public:
     TMC2209(const StepperSpecs &stepper,
+            const uint16_t microstepping,
             Stream *serial,
             const uint8_t address,
             const uint8_t pin_en,
@@ -17,14 +18,11 @@ public:
 
     void setup() override;
 
-    uint16_t getAvailableMicrosteppingModes() const override;
-
     uint16_t getMaxSpeed() const override;
 
     void step() override;
 
 protected:
-    void onMicrosteppingChanged() override;
     void onDirectionChanged() override;
 
 private:

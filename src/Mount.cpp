@@ -293,7 +293,7 @@ void Mount::setSpeedCalibration(float val, bool saveToStorage) {
   // Tracking speed has to be exactly the rotation speed of the earth. The earth rotates 360° per astronomical day.
   // This is 23h 56m 4.0905s, therefore the dimensionless _trackingSpeedCalibration = (23h 56m 4.0905s / 24 h) * mechanical calibration factor
   // Also compensate for higher precision microstepping in tracking mode
-  _trackingSpeed = _trackingSpeedCalibration * RA_STEPS_PER_DEGREE * (RA_TRACKING_MICROSTEPPING/RA_SLEW_MICROSTEPPING) * 360.0 / SECONDS_PER_DAY;   // (fraction of day) * u-steps/deg * (u-steps/u-steps) * deg / (sec/day) = u-steps / sec
+  _trackingSpeed = _trackingSpeedCalibration * RA_STEPS_PER_DEGREE * RA_MICROSTEPPING * 360.0 / SECONDS_PER_DAY;   // (fraction of day) * u-steps/deg * (u-steps/u-steps) * deg / (sec/day) = u-steps / sec
   LOGV2(DEBUG_MOUNT, F("Mount: RA steps per degree is %f steps/deg"), RA_STEPS_PER_DEGREE);
   LOGV2(DEBUG_MOUNT, F("Mount: New tracking speed is %f steps/sec"), _trackingSpeed);
 
@@ -797,8 +797,8 @@ void Mount::guidePulse(byte direction, int duration) {
   // RA stepper moves at either 2x sidereal rate or stops.
   // TODO: Do we need to adjust with _trackingSpeedCalibration?
   // Also compensate for microstepping mode change between slew & guiding/tracking
-  float decGuidingSpeed = _stepsPerDECDegree * (DEC_GUIDE_MICROSTEPPING/DEC_SLEW_MICROSTEPPING) * siderealDegreesInHour / 3600.0f;    // u-steps/deg * deg/hr / sec/hr = u-steps/sec
-  float raGuidingSpeed = _stepsPerRADegree * (RA_TRACKING_MICROSTEPPING/RA_SLEW_MICROSTEPPING) * siderealDegreesInHour / 3600.0f;     // u-steps/deg * deg/hr / sec/hr = u-steps/sec
+  float decGuidingSpeed = _stepsPerDECDegree * DEC_MICROSTEPPING * siderealDegreesInHour / 3600.0f;    // u-steps/deg * deg/hr / sec/hr = u-steps/sec
+  float raGuidingSpeed = _stepsPerRADegree * RA_MICROSTEPPING * siderealDegreesInHour / 3600.0f;     // u-steps/deg * deg/hr / sec/hr = u-steps/sec
 
   // TODO: Do we need to track how many steps the steppers took and add them to the GoHome calculation?
   // If so, we need to remember where we were when we started the guide pulse. Then at the end,

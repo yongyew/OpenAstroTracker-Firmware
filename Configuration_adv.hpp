@@ -70,15 +70,22 @@
 // Consequently slewing, tracking, guiding now use the same microstep configuration regardless of mode.
 // We plan to re-instate fine modes in a future release, but this will require a significant rework of the implementation.
 //
-#if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-  #define RA_SLEW_MICROSTEPPING 8         // The (default) microstep mode used for slewing RA axis
-  #define RA_TRACKING_MICROSTEPPING 8     // The fine microstep mode for tracking RA axis
-#elif (RA_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC) || (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
-  #define RA_SLEW_MICROSTEPPING 8         // Microstep mode set by MS pin strapping. Use the same microstep mode for both slewing & tracking   
-  #define RA_TRACKING_MICROSTEPPING RA_SLEW_MICROSTEPPING   
+#if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
+  #define RA_MICROSTEPPING 64
+#elif (RA_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC)
+  #define RA_MICROSTEPPING 32
 #elif (RA_DRIVER_TYPE == DRIVER_TYPE_ULN2003)
-  #define RA_SLEW_MICROSTEPPING 2         // The (default) half-step mode used for slewing RA axis
-  #define RA_TRACKING_MICROSTEPPING 2     // The fine half-step mode for tracking RA axis
+  #define RA_MICROSTEPPING 2
+#else
+  #error Unknown RA driver type
+#endif
+
+#if (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
+  #define DEC_MICROSTEPPING 64
+#elif (DEC_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC)
+  #define DEC_MICROSTEPPING 32
+#elif (DEC_DRIVER_TYPE == DRIVER_TYPE_ULN2003)
+  #define DEC_MICROSTEPPING 1
 #else
   #error Unknown RA driver type
 #endif
@@ -129,7 +136,7 @@
 // So there are 300.1 steps/degree (108245 / 360)  (V2: 322 (115812 / 360))
 // Theoretically correct RA tracking speed is 1.246586 (300 x 14.95903 / 3600) (V2 : 1.333800 (322 x 14.95903 / 3600) steps/sec (this is for 20T)
 // Include microstepping ratio here such that steps/sec is updates/sec to stepper driver
-#define RA_STEPS_PER_DEGREE   (RA_WHEEL_CIRCUMFERENCE / (RA_PULLEY_TEETH * GT2_BELT_PITCH) * RA_STEPPER_SPR * RA_SLEW_MICROSTEPPING / 360.0)
+#define RA_STEPS_PER_DEGREE   (RA_WHEEL_CIRCUMFERENCE / (RA_PULLEY_TEETH * GT2_BELT_PITCH) * RA_STEPPER_SPR * RA_MICROSTEPPING / 360.0)
 
 // DEC movement:
 // Belt moves 40mm for one stepper revolution (2mm pitch, 20 teeth).
@@ -138,27 +145,10 @@
 // Which means 57907 steps (14.14 x 4096) moves 360 degrees
 // So there are 160.85 steps/degree (57907/360) (this is for 20T)
 // Include microstepping ratio here such that steps/sec is updates/sec to stepper driver
-#define DEC_STEPS_PER_DEGREE  (DEC_WHEEL_CIRCUMFERENCE / (DEC_PULLEY_TEETH * GT2_BELT_PITCH) * DEC_STEPPER_SPR * DEC_SLEW_MICROSTEPPING / 360.0)
-
-
-// MICROSTEPPING
-// Only affects NEMA steppers!
-// Only affects calculations, Microstepping is set by MS pins, 
-// !!EXCEPT for TMC2209 UART where this value actually sets the SLEW microstepping
-// Valid values: 1, 2, 4, 8, 16, 32, 64, 128, 256
-// !! Values greater or equal 32 are not supported by each driver, TMC2209 supports these values.
-#if RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-#define SET_MICROSTEPPING 8        
-#endif
-
-// TMC2209 UART settings
-// These settings work only with TMC2209 in UART connection (single wire to TX)
-#define TRACKING_MICROSTEPPING 64  // Set the MS mode for tracking only. Slew MS is set by SET_MICROSTEPPING above
+#define DEC_STEPS_PER_DEGREE  (DEC_WHEEL_CIRCUMFERENCE / (DEC_PULLEY_TEETH * GT2_BELT_PITCH) * DEC_STEPPER_SPR * DEC_MICROSTEPPING / 360.0)
 
 #define RA_STALL_VALUE 100       // adjust this value if the RA autohoming sequence often false triggers, or triggers too late
 
-#define DEC_SLEW_MICROSTEPPING  16  // The microstep mode used for slewing DEC
-#define DEC_GUIDE_MICROSTEPPING 64  // The microstep mode used for Guiding DEC only
 #define DEC_STALL_VALUE 10    // adjust this value if the RA autohoming sequence often false triggers, or triggers too late
 #define DEC_RMSCURRENT 1000   // RMS current in mA. Warning: Peak current will be 1.414 times higher!! Do not exceed your steppers max current!
 #define DEC_HOLDCURRENT 20    // [0, ... , 31] x/32 of the run current when standing still. 0=1/32... 31=32/32

@@ -2,11 +2,12 @@
 
 TMC2209::TMC2209(
     const StepperSpecs &stepper,
+    const uint16_t microstepping,
     Stream *serial,
     const uint8_t address,
     const uint8_t pin_en,
     const uint8_t pin_step,
-    const uint8_t pin_dir) : Driver(stepper),
+    const uint8_t pin_dir) : Driver(stepper, microstepping),
                              tmcStepper(TMC2209Stepper(serial, 0.11f, address)),
                              pin_en(pin_en),
                              pin_step(pin_step),
@@ -46,6 +47,9 @@ void TMC2209::setup()
     //tmcStepper.SGTHRS(10);
     tmcStepper.irun(31);
 
+    uint16_t ms = (microstepping <= 1) ? 0 : microstepping;
+    tmcStepper.microsteps(ms);
+
     //     _driverDEC = new TMC2209Stepper(serial, rsense, driveraddress);
     //     _driverDEC->begin();
     //     _driverDEC->blank_time(24);
@@ -61,27 +65,9 @@ void TMC2209::setup()
     //     _driverDEC->ihold(DEC_HOLDCURRENT);
 }
 
-uint16_t TMC2209::getAvailableMicrosteppingModes() const
-{
-    // TMC2209 supports all microstepping modes from 1 (fullstep) to 256
-    return 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256;
-}
-
 uint16_t TMC2209::getMaxSpeed() const
 {
     return stepper.getMaxSpeed() * microstepping;
-}
-
-void TMC2209::onMicrosteppingChanged()
-{
-    if (microstepping <= 1)
-    {
-        tmcStepper.microsteps(0);
-    }
-    else
-    {
-        tmcStepper.microsteps(microstepping);
-    }
 }
 
 void TMC2209::step()
