@@ -1,7 +1,5 @@
 #include "RotationAxis.hpp"
 
-#include "Arduino.h"
-
 RotationAxis::RotationAxis(
     const float transmission,
     Driver &driver) : currentPosition(0.0f),

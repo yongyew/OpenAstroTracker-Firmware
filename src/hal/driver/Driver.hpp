@@ -3,7 +3,6 @@
 #include "../stepper/StepperSpecs.hpp"
 
 #include "stdint.h"
-#include "AccelStepper.h"
 
 /**
  * This is the abstract interface to be implemented by specific driver implementations.

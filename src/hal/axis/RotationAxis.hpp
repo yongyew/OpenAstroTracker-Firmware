@@ -2,8 +2,6 @@
 
 #include "../driver/Driver.hpp"
 
-#include "AccelStepper.h"
-
 /**
  * Rotation axis used for most movements of the tracking mount. The axis class calculates
  * conversions from arcsecs to steps of its stepper taking into account transmission, 

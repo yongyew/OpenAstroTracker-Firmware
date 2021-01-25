@@ -1,5 +1,7 @@
 #include "ULN2003.hpp"
 
+#include <Arduino.h>
+
 namespace
 {
 	/**
@@ -55,6 +57,7 @@ uint16_t ULN2003::getMaxSpeed() const
 
 void ULN2003::step()
 {
+	// TODO: use direct port manipulation to improve performance
 	digitalWrite(pin_in1, rot(pin_state_sequence, 0 * microstepping) & 0b1);
 	digitalWrite(pin_in2, rot(pin_state_sequence, 1 * microstepping) & 0b1);
 	digitalWrite(pin_in3, rot(pin_state_sequence, 2 * microstepping) & 0b1);
