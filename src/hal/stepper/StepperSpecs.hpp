@@ -25,22 +25,27 @@ public:
     /**
      * Get steps per revolution
      */
-    int getStepsPerRevolution() const;
+    const int getStepsPerRevolution() const;
+
+    /**
+     * Get amount of degrees for one full step of this stepper.
+     */
+    const float getDegPerStep() const;
 
     /**
      * Get maximal speed (steps/s) of this stepper motor
      */
-    float getMaxSpeed() const;
+    const float getMaxSpeed() const;
 
     /**
      * Calculate RMS current from the rated current.
      */
-    float getRMSCurrent() const;
+    const float getRMSCurrent() const;
 
     /**
      * Get rated current of this motor. This value should be used to configure RMS properly.
      */
-    float getRatedCurrent() const;
+    const float getRatedCurrent() const;
 
 private:
     const int spr;

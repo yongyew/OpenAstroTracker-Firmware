@@ -25,3 +25,13 @@ const uint16_t Driver::getMicrostepping() const
 {
     return microstepping;
 }
+
+const float Driver::getDegPerStep() const
+{
+    return stepper.getDegPerStep() / microstepping;
+}
+
+const Driver::Direction Driver::getDirection() const
+{
+    return direction;
+}

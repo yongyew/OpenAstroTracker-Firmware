@@ -35,5 +35,5 @@ void RaAxis::updateRotationSpeed()
 
     speed += guidingDirection * guidingSpeedFactor * EARTH_ROTATION_SPEED;
 
-    rotate(speed);
+    setSpeed(speed);
 }

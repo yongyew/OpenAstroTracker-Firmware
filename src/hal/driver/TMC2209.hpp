@@ -18,7 +18,7 @@ public:
 
     void setup() override;
 
-    uint16_t getMaxSpeed() const override;
+    const uint16_t getMaxSteppingRate() const override;
 
     void step() override;
 

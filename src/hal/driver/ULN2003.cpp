@@ -50,7 +50,7 @@ void ULN2003::setup()
 	pinMode(pin_in4, OUTPUT);
 }
 
-uint16_t ULN2003::getMaxSpeed() const
+const uint16_t ULN2003::getMaxSteppingRate() const
 {
 	return stepper.getMaxSpeed() * microstepping;
 }

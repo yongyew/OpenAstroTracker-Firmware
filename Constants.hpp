@@ -58,10 +58,10 @@
 #define EARTH_ROTATION_SPEED 360.0 / SECONDS_PER_DAY
 
 // Stepper drivers
-#define DRIVER_TYPE_ULN2003             0   // Supports halfstepping
-#define DRIVER_TYPE_A4988_GENERIC       1   // Supports fixed microstepping
-#define DRIVER_TYPE_TMC2209_STANDALONE  2   // Supports fixed microstepping
-#define DRIVER_TYPE_TMC2209_UART        3   // Supports dynamic microstepping
+#define DRIVER_TYPE_ULN2003             1   // Supports halfstepping
+#define DRIVER_TYPE_A4988_GENERIC       2   // Supports fixed microstepping
+#define DRIVER_TYPE_TMC2209_STANDALONE  4   // Supports fixed microstepping
+#define DRIVER_TYPE_TMC2209_UART        8   // Supports dynamic microstepping
 
 
 // USB serial port speed according to external controller

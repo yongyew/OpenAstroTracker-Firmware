@@ -65,7 +65,7 @@ void TMC2209::setup()
     //     _driverDEC->ihold(DEC_HOLDCURRENT);
 }
 
-uint16_t TMC2209::getMaxSpeed() const
+const uint16_t TMC2209::getMaxSteppingRate() const
 {
     return stepper.getMaxSpeed() * microstepping;
 }

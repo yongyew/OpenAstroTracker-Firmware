@@ -13,17 +13,17 @@ StepperSpecs::StepperSpecs(
 {
 }
 
-int StepperSpecs::getStepsPerRevolution() const
+const int StepperSpecs::getStepsPerRevolution() const
 {
     return spr;
 }
 
-float StepperSpecs::getRMSCurrent() const
+const float StepperSpecs::getRMSCurrent() const
 {
     return ratedCurrent * SQRT2;
 }
 
-float StepperSpecs::getMaxSpeed() const
+const float StepperSpecs::getMaxSpeed() const
 {
     /**
      * T_s      - time per step
@@ -37,7 +37,12 @@ float StepperSpecs::getMaxSpeed() const
     return voltage / (inductance * ratedCurrent * 2);
 }
 
-float StepperSpecs::getRatedCurrent() const
+const float StepperSpecs::getRatedCurrent() const
 {
     return ratedCurrent;
+}
+
+const float StepperSpecs::getDegPerStep() const
+{
+    return 360.0f / spr;
 }

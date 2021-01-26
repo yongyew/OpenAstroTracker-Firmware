@@ -1,9 +1,9 @@
 #include "RotationAxis.hpp"
+#include <Arduino.h>
 
 RotationAxis::RotationAxis(
     const float transmission,
-    Driver &driver) : currentPosition(0.0f),
-                      transmission(transmission),
+    Driver &driver) : transmission(transmission),
                       driver(driver) {}
 
 void RotationAxis::setup()
@@ -13,30 +13,75 @@ void RotationAxis::setup()
 
 void RotationAxis::loop()
 {
-    // TODO: check if speed is not zero
-    // TODO: check if target not reached yet
-    driver.step();
+    if (speed)
+    {
+        unsigned long time = micros();
+        if (time - lastStepTime >= steppingInterval)
+        {
+            driver.step();
+            lastStepTime = time;
+
+            currentPosition += getDegPerStep() * driver.getDirection();
+
+            if (degsToTarget)
+            {
+                degsToTarget += driver.getDirection() * getDegPerStep();
+
+                if (abs(degsToTarget) <= getDegPerStep())
+                {
+                    degsToTarget = 0.0f;
+                    onTargetReached();
+                }
+            }
+        }
+    }
 }
 
-void RotationAxis::rotate(const float degPerSecond)
+void RotationAxis::setSpeed(const float degPerSecond)
 {
-    // accelStepper.setSpeed(getStepsPerDeg() * speed);
+    if (this->speed == degPerSecond)
+        return;
+
+    float maxSpeed = driver.getMaxSteppingRate() * getDegPerStep();
+    this->speed = constrain(degPerSecond, -maxSpeed, maxSpeed);
+
+    if (this->speed == 0.0f)
+    {
+        this->steppingInterval = 0.0f;
+    }
+    else
+    {
+        this->steppingInterval = 1000000.0f / this->speed;
+    }
+
+    if (this->speed > 0)
+    {
+        driver.setDirection(Driver::Direction::CLOCKWISE);
+    }
+    else
+    {
+        driver.setDirection(Driver::Direction::ANTICLOCKWISE);
+    }
 }
 
-void RotationAxis::rotateToTarget(const float degPerSecond, const float target)
+void RotationAxis::moveTo(const float degrees)
 {
-    // accelStepper.setSpeed(getStepsPerDeg() * speed);
-    // accelStepper.moveTo(getStepsPerDeg() * target);
+    degsToTarget = degrees - currentPosition;
+}
+
+void RotationAxis::moveBy(const float degrees)
+{
+    degsToTarget = degrees;
 }
 
 void RotationAxis::onTargetReached()
 {
-    // default implementation for the case if the specific axis implementation does not need this callback
+    // stub implementation for the case if the specific axis implementation does not need this callback
 }
 
 float RotationAxis::getStepsPerDeg() const
 {
-    return transmission * driver.getStepperSpecs().getStepsPerRevolution() * driver.getMicrostepping() / 360.0f;
+    return 1 / getDegPerStep();
 }
 
 float RotationAxis::getCurrentPosition() const
@@ -47,4 +92,9 @@ float RotationAxis::getCurrentPosition() const
 void RotationAxis::setCurrentPosition(float degrees)
 {
     currentPosition = degrees;
+}
+
+const float RotationAxis::getDegPerStep() const
+{
+    return transmission * driver.getDegPerStep();
 }

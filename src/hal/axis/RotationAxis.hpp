@@ -29,45 +29,59 @@ public:
     float getCurrentPosition() const;
 
     /**
-     * Set current axis position in degrees. Negative values are allowed.
+     * Set current axis position.
+     * 
+     * @param degrees Position to be set in degrees. Negative values are allowed.
      */
     void setCurrentPosition(float degrees);
 
 protected:
-
     /**
      * Construct a new RotationAxis instance.
      * 
-     * transmission - transmission value of this axis. If e.g. RA ring circumference is 100mm and used pulley is 20mm,
-     *                resulting transmission would be (circ_ra / circ_pulley) = (100 / 20) = 5
-     * driver - reference to a specific implementation instance of the Driver interface.
+     * @param transmission  transmission value of this axis. 
+     *                      If e.g. RA ring circumference is 100mm and used pulley is 20mm,
+     *                      resulting transmission would be (circ_ra / circ_pulley) = (100 / 20) = 5
+     * @param driver        reference to a specific implementation instance of the Driver interface.
      */
     RotationAxis(const float transmission, Driver &driver);
 
     /**
      * Rotate the axis at the specified speed.
      * 
-     * degPerSecond - Rotation speed. Negative for reversed direction. Zero for stop.
+     * @param degPerSecond Rotation speed. Negative for reversed direction. Zero for stop.
      */
-    void rotate(const float degPerSecond);
+    void setSpeed(const float degPerSecond);
 
     /**
      * Rotate the axis at the specified speed to a target and stop after this target was reached. The last loop() call 
      * will also call onTargetReached() so the subclass can react.
      * 
-     * degPerSecond - Rotation speed. Negative for reversed direction. Zero for stop.
-     * target - target of rotation in deg (absolute)
+     * @param degrees target of rotation in deg (absolute value)
      */
-    void rotateToTarget(const float degPerSecond, const float target);
+    void moveTo(const float degrees);
+
+    /**
+     * Rotate the axis at the specified speed to a target and stop after this target was reached. The last loop() call 
+     * will also call onTargetReached() so the subclass can react.
+     * 
+     * @param degrees target of rotation in deg (relative value)
+     */
+    void moveBy(const float degrees);
 
     /**
      * Callback to be called after the rotation target was reached. This function will be called at the end of the 
      * loop() call which leads to reaching the target set in rotateToTarget().
      */
     virtual void onTargetReached();
+    
+    /**
+     * Return amount of degrees this axis makes with one step of the stepper motor. Takes transmissin, microstepping
+     * and stepper characteristics into account.
+     */
+    const float getDegPerStep() const;
 
 private:
-
     /**
      * Return amount of steps needed to rotate this axis by one degree concidering current microstepping.
      */
@@ -76,9 +90,26 @@ private:
     /**
      * Current position of this axis in degrees.
      */
-    float currentPosition;
+    float currentPosition = 0.0f;
 
     const float transmission;
 
     Driver &driver;
+
+    /**
+     * Current speed in degrees per second.
+     */
+    float speed = 0;
+
+    /**
+     * Time interval of two steps in microseconds.
+     */
+    float steppingInterval = 0;
+
+    /**
+     * Distance in degrees to the target. 0 if there is no target set.
+     */
+    float degsToTarget = 0;
+
+    unsigned long lastStepTime = 0.0f;
 };

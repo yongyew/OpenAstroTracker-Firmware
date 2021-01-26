@@ -40,14 +40,19 @@ public:
     const StepperSpecs &getStepperSpecs() const;
 
     /**
+     * Get degrees per step taking microstepping into account.
+     */
+    const float getDegPerStep() const;
+
+    /**
      * Get microstepping.
      */
     const uint16_t getMicrostepping() const;
 
     /**
-     * Return maximal speed (steps per second) taking microstepping and driver characteristics into account.
+     * Return maximal speed (steps per second) taking microstepping and stepper characteristics into account.
      */
-    virtual uint16_t getMaxSpeed() const = 0;
+    virtual const uint16_t getMaxSteppingRate() const = 0;
 
     /**
      * Perform a step in the currently set direction.
@@ -61,6 +66,11 @@ public:
      * @param direction rotation direction
      */
     void setDirection(const Direction direction);
+
+    /**
+     * Get current direction.
+     */
+    const Direction getDirection() const;
 
 protected:
     virtual void onDirectionChanged() = 0;
