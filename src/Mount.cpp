@@ -163,6 +163,9 @@ void Mount::readPersistentData()
   _longitude = EEPROMStore::getLongitude();
   LOGV2(DEBUG_INFO,F("Mount: EEPROM: Longitude is %s"), _longitude.ToString());
 
+  _localUtcOffset = EEPROMStore::getUtcOffset();
+  LOGV2(DEBUG_INFO,F("Mount: EEPROM: UTC offset is %d"), _localUtcOffset);
+
 #if USE_GYRO_LEVEL == 1
   _pitchCalibrationAngle = EEPROMStore::getPitchCalibrationAngle();
   LOGV2(DEBUG_INFO,F("Mount: EEPROM: Pitch Offset is %f"), _pitchCalibrationAngle);
@@ -2221,7 +2224,7 @@ void Mount::finishFindingHomeRA()
 /////////////////////////////////
 DayTime Mount::getUtcTime() {
   DayTime timeUTC = getLocalTime();
-  timeUTC.addHours(_localUtcOffset);
+  timeUTC.addHours(-_localUtcOffset);
   return timeUTC;
 }
 
@@ -2231,9 +2234,9 @@ DayTime Mount::getUtcTime() {
 //
 /////////////////////////////////
 DayTime Mount::getLocalTime() {
-  DayTime timeUTC = _localStartTime;
-  timeUTC.addSeconds((millis() - _localStartTimeSetMillis) / 1000);
-  return timeUTC;
+  DayTime timeLocal = _localStartTime;
+  timeLocal.addSeconds((millis() - _localStartTimeSetMillis) / 1000);
+  return timeLocal;
 }
 
 /////////////////////////////////
@@ -2324,6 +2327,8 @@ void Mount::setLocalStartTime(DayTime localTime) {
 /////////////////////////////////
 void Mount::setLocalUtcOffset(int offset) {
   _localUtcOffset = offset;
+  EEPROMStore::storeUtcOffset(_localUtcOffset);
+
   autoCalcHa();
 }
 
