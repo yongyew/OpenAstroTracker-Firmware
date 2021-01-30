@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Driver.hpp"
+#include "utils/SteppingHelper.hpp"
 
 #define INIT_STATE_FULL_STEP 0b00110011
 #define INIT_STATE_HALF_STEP 0b00000111
@@ -18,14 +19,13 @@ public:
 
     void setup() override;
 
-    const uint16_t getMaxSteppingRate() const override;
+    void loop() override;
 
-    void step() override;
-
-protected:
-    void onDirectionChanged() override;
+    const float getPosition() const override;
 
 private:
+    inline void setPins();
+
     const uint8_t pin_in1;
     const uint8_t pin_in2;
     const uint8_t pin_in3;
@@ -34,4 +34,6 @@ private:
     uint8_t pin_state_sequence;
 
     uint8_t (*rot)(const uint8_t, const uint8_t);
+
+    SteppingHelper steppingHelper;
 };

@@ -1,37 +1,18 @@
 #include "Driver.hpp"
 
+#include <Arduino.h>
+
 Driver::Driver(
     const StepperSpecs &stepper,
-    const uint16_t microstepping,
-    const Direction direction) : stepper(stepper),
-                                 microstepping(microstepping),
-                                 direction(direction) {}
+    const uint16_t microstepping) : stepper(stepper),
+                                    microstepping(microstepping) {}
 
-const StepperSpecs &Driver::getStepperSpecs() const
+float Driver::setSpeed(const float degPerSec)
 {
-    return stepper;
-}
-
-void Driver::setDirection(const Direction direction)
-{
-    if (direction != this->direction)
+    if (degPerSec != this->speed)
     {
-        this->direction = direction;
-        onDirectionChanged();
+        this->speed = constrain(degPerSec, -stepper.getMaxSpeed(), stepper.getMaxSpeed());
     }
-}
 
-const uint16_t Driver::getMicrostepping() const
-{
-    return microstepping;
-}
-
-const float Driver::getDegPerStep() const
-{
-    return stepper.getDegPerStep() / microstepping;
-}
-
-const Driver::Direction Driver::getDirection() const
-{
-    return direction;
+    return this->speed;
 }

@@ -13,71 +13,46 @@
 class Driver
 {
 public:
-    enum Direction
-    {
-        CLOCKWISE = 1,
-        ANTICLOCKWISE = -1
-    };
-
     /**
-     * Construct new driver with provided hardware specifications.
+     * Construct new driver instance with provided hardware specifications.
      * 
      * @param stepper reference to the stepper specifications.
      * @param microstepping microstepping mode to be used.
-     * @param direction initial direction to be used. Defaults to clockwise.
      */
-    Driver(const StepperSpecs &stepper, const uint16_t microstepping, const Direction direction = Direction::CLOCKWISE);
+    Driver(const StepperSpecs &stepper, const uint16_t microstepping);
 
     /**
-     * Perform required preparations (e.g. setting up UART connection, max speed,
-     * microstepping etc.)
+     * Perform required preparations (e.g. setting up UART connection, setting microstepping etc.)
      */
     virtual void setup() = 0;
 
     /**
-     * Return specs of the connected stepper.
+     * Perform operations needed to be run periodically (e.g. perform a step if needed or calculate position).
      */
-    const StepperSpecs &getStepperSpecs() const;
+    virtual void loop() = 0;
 
     /**
-     * Get degrees per step taking microstepping into account.
-     */
-    const float getDegPerStep() const;
-
-    /**
-     * Get microstepping.
-     */
-    const uint16_t getMicrostepping() const;
-
-    /**
-     * Return maximal speed (steps per second) taking microstepping and stepper characteristics into account.
-     */
-    virtual const uint16_t getMaxSteppingRate() const = 0;
-
-    /**
-     * Perform a step in the currently set direction.
-     */
-    virtual void step() = 0;
-
-    /**
-     * Set rotation direction to be used for the steps after this call. If the provided direction differs from the 
-     * previos one, onDIrectionChanged will be called on the subclass instance.
+     * Set speed of this driver/stepper. Negative values reverse direction. Zero stops the motor.
+     * The speed can be limited based on the driver or stepper limitations. Use return value to
+     * get the actual speed value which will be used.
      * 
-     * @param direction rotation direction
+     * @param degPerSecond new speed in degrees per second
+     * 
+     * @return applied speed in degrees per second.
      */
-    void setDirection(const Direction direction);
+    virtual float setSpeed(const float degPerSecond);
 
     /**
-     * Get current direction.
+     * @return current speed (deg per second).
      */
-    const Direction getDirection() const;
+    const float getSpeed() const;
+
+    virtual const float getPosition() const = 0;
 
 protected:
-    virtual void onDirectionChanged() = 0;
-
     const StepperSpecs &stepper;
 
     const uint16_t microstepping;
 
-    Direction direction = CLOCKWISE;
+    float speed = 0;
 };

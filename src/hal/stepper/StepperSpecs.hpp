@@ -3,7 +3,7 @@
 #include "stdint.h"
 
 /**
- * Represents technical specification of the used stepper.
+ * Represents technical specification of a stepper.
  */
 class StepperSpecs
 {
@@ -33,7 +33,12 @@ public:
     const float getDegPerStep() const;
 
     /**
-     * Get maximal speed (steps/s) of this stepper motor
+     * Get maximal speed (steps per second) of this stepper motor
+     */
+    const float getMaxSPS() const;
+
+    /**
+     * Get maximal speed (degrees per second) of this stepper motor
      */
     const float getMaxSpeed() const;
 

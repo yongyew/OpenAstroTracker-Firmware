@@ -5,6 +5,8 @@
 #include "stdint.h"
 #include "TMCStepper.h"
 
+#include "utils/SteppingHelper.hpp"
+
 class TMC2209 : public Driver
 {
 public:
@@ -18,12 +20,11 @@ public:
 
     void setup() override;
 
-    const uint16_t getMaxSteppingRate() const override;
+    void loop() override;
 
-    void step() override;
+    float setSpeed(const float degPerSecond) override;
 
-protected:
-    void onDirectionChanged() override;
+    const float getPosition() const override;
 
 private:
     TMC2209Stepper tmcStepper;
@@ -31,4 +32,6 @@ private:
     const uint8_t pin_en;
     const uint8_t pin_step;
     const uint8_t pin_dir;
+
+    SteppingHelper steppingHelper;
 };

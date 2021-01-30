@@ -97,19 +97,7 @@ private:
     Driver &driver;
 
     /**
-     * Current speed in degrees per second.
-     */
-    float speed = 0;
-
-    /**
-     * Time interval of two steps in microseconds.
-     */
-    float steppingInterval = 0;
-
-    /**
      * Distance in degrees to the target. 0 if there is no target set.
      */
     float degsToTarget = 0;
-
-    unsigned long lastStepTime = 0.0f;
 };

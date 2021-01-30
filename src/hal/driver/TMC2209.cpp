@@ -65,25 +65,40 @@ void TMC2209::setup()
     //     _driverDEC->ihold(DEC_HOLDCURRENT);
 }
 
-const uint16_t TMC2209::getMaxSteppingRate() const
+float TMC2209::setSpeed(const float degPerSecond)
 {
-    return stepper.getMaxSpeed() * microstepping;
+    if (this->speed != degPerSecond)
+    {
+        Driver::setSpeed(degPerSecond);
+
+        if (this->speed >= 0)
+        {
+            digitalWrite(pin_dir, HIGH);
+        }
+        else
+        {
+            digitalWrite(pin_dir, LOW);
+        }
+    }
+
+    return this->speed;
 }
 
-void TMC2209::step()
+void TMC2209::loop()
 {
-    // TODO: use fast digital write with direct port manipulation
-    digitalWrite(pin_step, HIGH);
+    if (steppingHelper.step())
+    {
+        // TODO: use fast digital write with direct port manipulation
+        digitalWrite(pin_step, HIGH);
 
-    // TODO: handle this without blocking
-    // typical required signal timing for STEP pin being HIGH
-    delayMicroseconds(100);
-    digitalWrite(pin_step, LOW);
-
-    // TODO: handle other modes (standalone, full uart etc.)
+        // TODO: handle this without blocking
+        // typical required signal timing for STEP pin being HIGH
+        delayMicroseconds(100);
+        digitalWrite(pin_step, LOW);
+    }
 }
 
-void TMC2209::onDirectionChanged()
+const float TMC2209::getPosition() const
 {
-    digitalWrite(pin_dir, direction);
+    return this->stepper.getDegPerStep() * steppingHelper.getPosition() / microstepping;
 }

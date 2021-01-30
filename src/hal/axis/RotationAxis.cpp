@@ -1,4 +1,5 @@
 #include "RotationAxis.hpp"
+
 #include <Arduino.h>
 
 RotationAxis::RotationAxis(
@@ -13,55 +14,12 @@ void RotationAxis::setup()
 
 void RotationAxis::loop()
 {
-    if (speed)
-    {
-        unsigned long time = micros();
-        if (time - lastStepTime >= steppingInterval)
-        {
-            driver.step();
-            lastStepTime = time;
-
-            currentPosition += getDegPerStep() * driver.getDirection();
-
-            if (degsToTarget)
-            {
-                degsToTarget += driver.getDirection() * getDegPerStep();
-
-                if (abs(degsToTarget) <= getDegPerStep())
-                {
-                    degsToTarget = 0.0f;
-                    onTargetReached();
-                }
-            }
-        }
-    }
+    driver.loop();
 }
 
 void RotationAxis::setSpeed(const float degPerSecond)
 {
-    if (this->speed == degPerSecond)
-        return;
-
-    float maxSpeed = driver.getMaxSteppingRate() * getDegPerStep();
-    this->speed = constrain(degPerSecond, -maxSpeed, maxSpeed);
-
-    if (this->speed == 0.0f)
-    {
-        this->steppingInterval = 0.0f;
-    }
-    else
-    {
-        this->steppingInterval = 1000000.0f / this->speed;
-    }
-
-    if (this->speed > 0)
-    {
-        driver.setDirection(Driver::Direction::CLOCKWISE);
-    }
-    else
-    {
-        driver.setDirection(Driver::Direction::ANTICLOCKWISE);
-    }
+    driver.setSpeed(degPerSecond);
 }
 
 void RotationAxis::moveTo(const float degrees)
@@ -81,7 +39,7 @@ void RotationAxis::onTargetReached()
 
 float RotationAxis::getStepsPerDeg() const
 {
-    return 1 / getDegPerStep();
+    return 1.0f / getDegPerStep();
 }
 
 float RotationAxis::getCurrentPosition() const
@@ -92,9 +50,4 @@ float RotationAxis::getCurrentPosition() const
 void RotationAxis::setCurrentPosition(float degrees)
 {
     currentPosition = degrees;
-}
-
-const float RotationAxis::getDegPerStep() const
-{
-    return transmission * driver.getDegPerStep();
 }
