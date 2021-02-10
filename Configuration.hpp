@@ -33,21 +33,21 @@
 #include "Version.h"
 
 /**
- * Define the board used or take the one already specified by the toolchain (e.g. while using PlatformIO). Valid options
- * can be looked up in Constants.hpp file.
- **/
+ * Use default values for any parameters the user didn't provide.
+ */
+
+// Uncomment the definition and set a board (see Constants.hpp for valid values) if you build in Arduino IDE.
+// PlatformIO will set this value automatically and no action is needed.
 #ifndef BOARD
-    #define BOARD BOARD_AVR_MEGA2560
+  // #define BOARD BOARD_AVR_MEGA2560
+#endif
+
+#ifndef BOARD
+  #error You have to specify the board
 #endif
 
 // Include the user-specific local configuration
-#if __has_include("Configuration_local.hpp")
-    #include "Configuration_local.hpp"
-#endif
-
-/**
- * Use default values for any parameters the user didn't provide.
- */
+#include "LocalConfiguration.hpp"
 
 // Set to 1 for the northern hemisphere, 0 otherwise
 #ifndef NORTHERN_HEMISPHERE
@@ -197,7 +197,7 @@
   #define WIFI_MODE WIFI_MODE_DISABLED
 #endif
 #if !defined(WIFI_HOSTNAME)
-  #define WIFI_HOSTNAME ""
+  #define WIFI_HOSTNAME "OAT"
 #endif
 #if !defined(WIFI_INFRASTRUCTURE_MODE_SSID)
   #define WIFI_INFRASTRUCTURE_MODE_SSID ""
@@ -270,160 +270,5 @@
 #define DEBUG_LEVEL (DEBUG_NONE)
 #endif
 
-// Append the advanced configuration data.
 #include "Configuration_adv.hpp"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                            ////////
-// VALIDATE CONFIGURATION     ////////
-//                            ////////
-//////////////////////////////////////
-
-// Platform
-#if defined(ESP32) || defined(__AVR_ATmega2560__)
-  // Valid platform
-#else
-  #error Unsupported platform configuration. Use at own risk.
-#endif
-
-// Display & keypad configurations
-#if defined(ESP32) && ((DISPLAY_TYPE == DISPLAY_TYPE_NONE) || (DISPLAY_TYPE == DISPLAY_TYPE_LCD_JOY_I2C_SSD1306))
-  // Valid display for ESP32
-#elif defined(__AVR_ATmega2560__) && ((DISPLAY_TYPE == DISPLAY_TYPE_NONE) || (DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD) \
-  || (DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008) || (DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017))
-  // Valid display for ATmega
-#else
-  #error Unsupported display configuration. Use at own risk.
-#endif
-
-// Validate motor & driver configurations
-#if (RA_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (RA_DRIVER_TYPE == DRIVER_TYPE_ULN2003)
-  // Valid RA stepper and driver combination
-#elif (RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && ((RA_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC) \
-  || (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART))
-  // Valid RA stepper and driver combination
-#else
-  #error Unsupported RA stepper & driver combination. Use at own risk.
-#endif
-
-#if (DEC_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (DEC_DRIVER_TYPE == DRIVER_TYPE_ULN2003)
-  // Valid DEC stepper and driver combination
-#elif (DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && ((DEC_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC) \
-  || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART))
-  // Valid DEC stepper and driver combination
-#else
-  #error Unsupported DEC stepper & driver combination. Use at own risk.
-#endif
-
-#if (AZIMUTH_ALTITUDE_MOTORS == 0)
-  // Baseline configuration without azimuth & altitude control is valid
-#elif defined(__AVR_ATmega2560__)
-  // Azimuth configuration
-  #if (AZ_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (AZ_DRIVER_TYPE == DRIVER_TYPE_ULN2003)
-    // Valid AZ stepper and driver combination
-  #elif (AZ_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (AZ_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC)
-    // Valid AZ stepper and driver combination
-  #elif (AZ_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
-    // Valid AZ stepper and driver combination
-  #elif (AZ_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-    // Valid AZ stepper and driver combination
-  #elif (AZ_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && (AZ_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC)
-    // Valid AZ stepper and driver combination
-  #elif (AZ_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
-    // Valid AZ stepper and driver combination
-  #elif (AZ_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-    // Valid AZ stepper and driver combination
-  #else
-    #error Unsupported AZ stepper & driver combination. Use at own risk.
-  #endif
-
-  // Altitude configuration
-  #if (ALT_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (ALT_DRIVER_TYPE == DRIVER_TYPE_ULN2003)
-    // Valid ALT stepper and driver combination
-  #elif (ALT_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (ALT_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC)
-    // Valid ALT stepper and driver combination
-  #elif (ALT_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
-    // Valid ALT stepper and driver combination
-  #elif (ALT_STEPPER_TYPE == STEPPER_TYPE_28BYJ48) && (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-    // Valid ALT stepper and driver combination
-  #elif (ALT_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && (ALT_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC)
-    // Valid ALT stepper and driver combination
-  #elif (ALT_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE)
-    // Valid ALT stepper and driver combination
-  #elif (ALT_STEPPER_TYPE == STEPPER_TYPE_NEMA17) && (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-    // Valid ALT stepper and driver combination
-  #else
-    #error Unsupported ALT stepper & driver combination. Use at own risk.
-  #endif
-
-  #if (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-    #ifndef AZ_DRIVER_ADDRESS
-      // Serial bus address must be specified for TMC2209 in UART mode
-      #error AZ driver address for DRIVER_TYPE_TMC2209_UART not specified.
-    #endif
-  #endif
-
-  #if (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
-    #ifndef ALT_DRIVER_ADDRESS
-      // Serial bus address must be specified for TMC2209 in UART mode
-      #error ALT driver address for DRIVER_TYPE_TMC2209_UART not specified.
-    #endif
-  #endif
-
-#else
-  #error Configuration does not support AZ/ALT. Use at own risk.
-#endif 
-
-// Interfaces
-#if (BLUETOOTH_ENABLED == 0)
-  // Baseline configuration without Bluetooth is valid
-#elif defined(ESP32)
-  // Bluetooth is only supported on ESP32
-  #if !defined(BLUETOOTH_DEVICE_NAME)
-    #error Bluetooth device name must be provided
-  #endif
-#else
-  #error Unsupported Bluetooth configuration. Use at own risk.
-#endif
-
-#if (WIFI_ENABLED == 0)
-  // Baseline configuration without WiFi is valid
-#elif defined(ESP32)
-  // Wifi is only supported on ESP32
-  #if !defined(WIFI_HOSTNAME)
-    #error Wifi hostname must be provided for infrastructure and AP modes
-  #endif
-  #if (WIFI_MODE == WIFI_MODE_DISABLED)
-    // Baseline configuration with disabled WiFi is valid
-  #endif
-  #if (WIFI_MODE == WIFI_MODE_INFRASTRUCTURE) || (WIFI_MODE == WIFI_MODE_ATTEMPT_INFRASTRUCTURE_FAIL_TO_AP)
-    #if !defined(WIFI_INFRASTRUCTURE_MODE_SSID) || !defined(WIFI_INFRASTRUCTURE_MODE_WPAKEY)
-      #error Wifi SSID and WPA key must be provided for infrastructure mode
-    #endif
-  #elif (WIFI_MODE == WIFI_MODE_AP_ONLY) || (WIFI_MODE == WIFI_MODE_ATTEMPT_INFRASTRUCTURE_FAIL_TO_AP)
-    #if !defined(WIFI_AP_MODE_WPAKEY)
-      #error Wifi WPA key must be provided for AP mode
-    #endif
-  #else
-    #error Unsupported WiFi configuration. Use at own risk.
-  #endif
-#else
-  #error Unsupported WiFi configuration (WiFI only supported on ESP32). Use at own risk.
-#endif
-
-// External sensors
-#if (USE_GPS == 0)
-  // Baseline configuration without GPS is valid
-#elif defined(ESP32) || defined(__AVR_ATmega2560__)
-  // GPS is supported on ESP32 and ATmega
-#else
-  #error Unsupported GPS configuration. Use at own risk.
-#endif
-
-#if (USE_GYRO_LEVEL == 0)
-  // Baseline configuration without gyro is valid
-#elif defined(ESP32) || defined(__AVR_ATmega2560__)
-  // Gyro is supported on ESP32 and ATmega
-#else
-  #error Unsupported gyro configuration. Use at own risk.
-#endif
+#include "ConfigurationValidation.hpp"

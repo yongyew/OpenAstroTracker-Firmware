@@ -19,18 +19,11 @@ LcdButtons lcdButtons(LCD_KEY_SENSE_PIN, &lcdMenu);
 LcdButtons lcdButtons(&lcdMenu);
 #endif
 
-#if defined(__AVR_ATmega2560__)
-#if AZIMUTH_ALTITUDE_MOTORS == 1
-  #if AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-    SoftwareSerial AZ_SERIAL_PORT(AZ_SERIAL_PORT_RX, AZ_SERIAL_PORT_TX);
-  #endif
-  #if ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-    SoftwareSerial ALT_SERIAL_PORT(ALT_SERIAL_PORT_RX, ALT_SERIAL_PORT_TX);
-  #endif
+#ifdef ESP32
+DRAM_ATTR Mount mount(&lcdMenu);
+#else
+Mount mount(&lcdMenu);
 #endif
-#endif
-
-Mount mount(hal::axis::ra, hal::axis::dec);
 
 #include "g_bluetooth.hpp"
 
@@ -173,7 +166,9 @@ void setup() {
     #if AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
       // include TMC2209 UART pins
       pinMode(AZ_DIAG_PIN, INPUT);
-      AZ_SERIAL_PORT.begin(57600);  // Start HardwareSerial comms with driver
+      #ifdef AZ_SERIAL_PORT
+        AZ_SERIAL_PORT.begin(57600);  // Start HardwareSerial comms with driver
+      #endif
     #endif
     #if ALT_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART  
       pinMode(ALT_EN_PIN, OUTPUT);
@@ -182,7 +177,9 @@ void setup() {
     #if ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
       // include TMC2209 UART pins
       pinMode(ALT_DIAG_PIN, INPUT);
-      ALT_SERIAL_PORT.begin(57600);  // Start HardwareSerial comms with driver
+      #ifdef ALT_SERIAL_PORT
+        ALT_SERIAL_PORT.begin(57600);  // Start HardwareSerial comms with driver
+      #endif
     #endif
   #endif
 // end microstepping -------------------
@@ -273,7 +270,11 @@ void setup() {
     #endif
     #if AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
       LOGV1(DEBUG_ANY, F("Configure AZ driver..."));
-      mount.configureAZdriver(&AZ_SERIAL_PORT, R_SENSE, AZ_DRIVER_ADDRESS, AZ_RMSCURRENT, AZ_STALL_VALUE);
+      #if SW_SERIAL_UART == 0
+        mount.configureAZdriver(&AZ_SERIAL_PORT, R_SENSE, AZ_DRIVER_ADDRESS, AZ_RMSCURRENT, AZ_STALL_VALUE);
+      #elif SW_SERIAL_UART == 1
+        mount.configureAZdriver(AZ_SERIAL_PORT_RX, AZ_SERIAL_PORT_TX, R_SENSE, AZ_DRIVER_ADDRESS, AZ_RMSCURRENT, AZ_STALL_VALUE);
+      #endif
     #endif
     LOGV1(DEBUG_ANY, F("Configure Alt stepper..."));
     #if ALT_DRIVER_TYPE == DRIVER_TYPE_ULN2003 
@@ -283,7 +284,11 @@ void setup() {
     #endif
     #if ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
       LOGV1(DEBUG_ANY, F("Configure ALT driver..."));
-      mount.configureALTdriver(&ALT_SERIAL_PORT, R_SENSE, ALT_DRIVER_ADDRESS, ALT_RMSCURRENT, ALT_STALL_VALUE);
+      #if SW_SERIAL_UART == 0
+        mount.configureALTdriver(&ALT_SERIAL_PORT, R_SENSE, ALT_DRIVER_ADDRESS, ALT_RMSCURRENT, ALT_STALL_VALUE);
+      #elif SW_SERIAL_UART == 1
+        mount.configureALTdriver(ALT_SERIAL_PORT_RX, ALT_SERIAL_PORT_TX, R_SENSE, ALT_DRIVER_ADDRESS, ALT_RMSCURRENT, ALT_STALL_VALUE);
+      #endif
     #endif
   #endif
 

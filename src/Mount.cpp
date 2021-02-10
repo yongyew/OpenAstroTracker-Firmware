@@ -70,21 +70,27 @@ const float siderealDegreesInHour = 14.95904348958;
 // CTOR
 //
 /////////////////////////////////
-// Mount::Mount(LcdMenu* lcdMenu) :
-//   _stepsPerRADegree(RA_STEPS_PER_DEGREE),   // u-steps per degree when slewing
-//   _stepsPerDECDegree(DEC_STEPS_PER_DEGREE)  // u-steps per degree when slewing
-//   #if AZIMUTH_ALTITUDE_MOTORS == 1
-//     , _stepsPerAZDegree(AZIMUTH_STEPS_PER_REV / 360),
-//     _stepsPerALTDegree(ALTITUDE_STEPS_PER_REV / 360),
-//     _azAltWasRunning(false)
-//   #endif
-// {
-//   _lcdMenu = lcdMenu;
-//   _mountStatus = 0;
-//   _lastDisplayUpdate = 0;
-//   _stepperWasRunning = false;
-//   _latitude = Latitude(45.0);
-//   _longitude = Longitude(100.0);
+Mount::Mount(LcdMenu* lcdMenu)
+  #if AZIMUTH_ALTITUDE_MOTORS == 1
+    : _stepsPerAZDegree(AZIMUTH_STEPS_PER_REV / 360),
+    _stepsPerALTDegree(ALTITUDE_STEPS_PER_REV / 360),
+    _azAltWasRunning(false)
+  #endif
+{
+  _lcdMenu = lcdMenu;
+  initializeVariables();
+}
+
+void Mount::initializeVariables()
+{
+  _stepsPerRADegree = RA_STEPS_PER_DEGREE;    // u-steps per degree when slewing
+  _stepsPerDECDegree = DEC_STEPS_PER_DEGREE;  // u-steps per degree when slewing
+
+  _mountStatus = 0;
+  _lastDisplayUpdate = 0;
+  _stepperWasRunning = false;
+  _latitude = Latitude(45.0);
+  _longitude = Longitude(100.0);
 
 //   _compensateForTrackerOff = false;
 //   _trackerStoppedAt = 0;
@@ -113,6 +119,7 @@ Mount::Mount(RaAxis &raAxis, DecAxis &decAxis)
   decAxis.setup();
 }
 
+
 /////////////////////////////////
 //
 // clearConfiguration
@@ -121,6 +128,8 @@ Mount::Mount(RaAxis &raAxis, DecAxis &decAxis)
 void Mount::clearConfiguration()
 {
   EEPROMStore::clearConfiguration();
+  initializeVariables();
+  readConfiguration();
 }
 
 /////////////////////////////////
@@ -229,12 +238,32 @@ void Mount::readPersistentData()
   #endif  
 #endif
 
+#if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART || DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
+#if UART_CONNECTION_TEST == 1
+bool Mount::connectToDriver( TMC2209Stepper* driver, const char *driverKind ) {
+    LOGV2(DEBUG_STEPPERS, F("Testing UART Connection to %s driver..."), driverKind);
+    for(int i=0; i<5; i++) {
+        if(driver->test_connection() == 0) {
+            LOGV2(DEBUG_STEPPERS, F("UART connection to %s driver successful."), driverKind);
+            return true;
+        }
+        else {
+          delay(500);
+        }
+    }
+    LOGV2(DEBUG_STEPPERS, F("UART connection to %s driver failed."), driverKind);
+    return false;
+}
+#endif
+#endif
+
 /////////////////////////////////
 //
 // configureAZdriver
 // TMC2209 UART only
 /////////////////////////////////
 #if (AZIMUTH_ALTITUDE_MOTORS == 1) && (AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
+#if SW_SERIAL_UART == 0
   void Mount::configureAZdriver(Stream *serial, float rsense, byte driveraddress, int rmscurrent, int stallvalue)
   {
     _driverAZ = new TMC2209Stepper(serial, rsense, driveraddress);
@@ -249,6 +278,25 @@ void Mount::readPersistentData()
     _driverAZ->fclktrim(4);
     _driverAZ->TCOOLTHRS(0xFFFFF);  //xFFFFF);
   }
+#elif SW_SERIAL_UART == 1
+  void Mount::configureAZdriver(uint16_t AZ_SW_RX, uint16_t AZ_SW_TX, float rsense, byte driveraddress, int rmscurrent, int stallvalue)
+  {
+    _driverAZ = new TMC2209Stepper(AZ_SW_RX, AZ_SW_TX, rsense, driveraddress);
+    _driverAZ->begin();
+    #if AZ_AUDIO_FEEDBACK == 1
+      _driverAZ->en_spreadCycle(1);
+    #endif
+    #if UART_CONNECTION_TEST == 1
+      connectToDriver( _driverAZ, "AZ" );
+    #endif
+    _driverAZ->toff(4);
+    _driverAZ->blank_time(24);
+    _driverAZ->rms_current(rmscurrent);
+    _driverAZ->microsteps(AZ_MICROSTEPPING == 1 ? 0 : AZ_MICROSTEPPING);   // If 1 then disable microstepping
+    _driverAZ->fclktrim(4);
+    _driverAZ->TCOOLTHRS(0xFFFFF);  //xFFFFF);
+  }
+#endif
 #endif
 
 /////////////////////////////////
@@ -257,6 +305,7 @@ void Mount::readPersistentData()
 // TMC2209 UART only
 /////////////////////////////////
 #if (AZIMUTH_ALTITUDE_MOTORS == 1) && (ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
+#if SW_SERIAL_UART == 0
   void Mount::configureALTdriver(Stream *serial, float rsense, byte driveraddress, int rmscurrent, int stallvalue)
   {
     _driverALT = new TMC2209Stepper(serial, rsense, driveraddress);
@@ -271,6 +320,25 @@ void Mount::readPersistentData()
     _driverALT->fclktrim(4);
     _driverALT->TCOOLTHRS(0xFFFFF);  //xFFFFF);
   }
+#elif SW_SERIAL_UART == 1
+  void Mount::configureALTdriver(uint16_t ALT_SW_RX, uint16_t ALT_SW_TX, float rsense, byte driveraddress, int rmscurrent, int stallvalue)
+  {
+    _driverALT = new TMC2209Stepper(ALT_SW_RX, ALT_SW_TX, rsense, driveraddress);
+    _driverALT->begin();
+    #if ALT_AUDIO_FEEDBACK == 1
+      _driverALT->en_spreadCycle(1);
+    #endif
+    #if UART_CONNECTION_TEST == 1
+      connectToDriver( _driverAZ, "ALT" );
+    #endif
+    _driverALT->toff(4);
+    _driverALT->blank_time(24);
+    _driverALT->rms_current(rmscurrent);
+    _driverALT->microsteps(ALT_MICROSTEPPING == 1 ? 0 : ALT_MICROSTEPPING);   // If 1 then disable microstepping
+    _driverALT->fclktrim(4);
+    _driverALT->TCOOLTHRS(0xFFFFF);  //xFFFFF);
+  }
+#endif
 #endif
 
 /////////////////////////////////
@@ -2019,7 +2087,7 @@ void Mount::displayStepperPosition() {
 
   String disp;
 
-  if ((abs(_totalDECMove) > 0.001) && (abs(_totalRAMove) > 0.001)) {
+  if ((fabs(_totalDECMove) > 0.001) && (fabs(_totalRAMove) > 0.001)) {
     // Both axes moving to target
     float decDist = 100.0 - 100.0 * _stepperDEC->distanceToGo() / _totalDECMove;
     float raDist = 100.0 - 100.0 * _stepperRA->distanceToGo() / _totalRAMove;
@@ -2033,14 +2101,14 @@ void Mount::displayStepperPosition() {
     return;
   }
 
-  if (abs(_totalDECMove) > 0.001) {
+  if (fabs(_totalDECMove) > 0.001) {
     // Only DEC moving to target
     float decDist = 100.0 - 100.0 * _stepperDEC->distanceToGo() / _totalDECMove;
     sprintf(scratchBuffer, "D%s %d%%", DECString(LCD_STRING | CURRENT_STRING).c_str(), (int)decDist);
     _lcdMenu->setCursor(0, 1);
     _lcdMenu->printMenu(String(scratchBuffer));
   }
-  else if (abs(_totalRAMove) > 0.001) {
+  else if (fabs(_totalRAMove) > 0.001) {
     // Only RAmoving to target
     float raDist = 100.0 - 100.0 * _stepperRA->distanceToGo() / _totalRAMove;
     sprintf(scratchBuffer, "R %s %d%%", RAString(LCD_STRING | CURRENT_STRING).c_str(), (int)raDist);

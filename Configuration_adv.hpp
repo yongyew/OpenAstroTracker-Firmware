@@ -14,7 +14,9 @@
 // 
 // This is how many steps your stepper needs for a full rotation.
 #if RA_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-  #define RA_STEPPER_SPR            4096  // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #ifndef RA_STEPPER_SPR
+    #define RA_STEPPER_SPR            4096  // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #endif
   #ifndef RA_STEPPER_SPEED
     #define RA_STEPPER_SPEED          400   // You can change the speed and acceleration of the steppers here. Max. Speed = 600. 
   #endif
@@ -22,7 +24,9 @@
     #define RA_STEPPER_ACCELERATION   600   // High speeds tend to make these cheap steppers unprecice
   #endif
 #elif RA_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-  #define RA_STEPPER_SPR            400   // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #ifndef RA_STEPPER_SPR
+    #define RA_STEPPER_SPR            400   // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #endif
   #ifndef RA_STEPPER_SPEED
     #define RA_STEPPER_SPEED          1200  // You can change the speed and acceleration of the steppers here. Max. Speed = 3000. 
   #endif
@@ -34,15 +38,19 @@
 #endif
 
 #if DEC_STEPPER_TYPE == STEPPER_TYPE_28BYJ48
-  #define DEC_STEPPER_SPR            4096  // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #ifndef DEC_STEPPER_SPR
+    #define DEC_STEPPER_SPR            4096  // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #endif
   #ifndef DEC_STEPPER_SPEED
     #define DEC_STEPPER_SPEED          600   // You can change the speed and acceleration of the steppers here. Max. Speed = 600. 
-  #endif
+   #endif
   #ifndef DEC_STEPPER_ACCELERATION
     #define DEC_STEPPER_ACCELERATION   400   // High speeds tend to make these cheap steppers unprecice
   #endif
 #elif DEC_STEPPER_TYPE == STEPPER_TYPE_NEMA17
-  #define DEC_STEPPER_SPR            400   // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #ifndef DEC_STEPPER_SPR
+    #define DEC_STEPPER_SPR            400   // 28BYJ-48 = 4096  |  NEMA 0.9° = 400  |  NEMA 1.8° = 200
+  #endif
   #ifndef DEC_STEPPER_SPEED
     #define DEC_STEPPER_SPEED          1300  // You can change the speed and acceleration of the steppers here. Max. Speed = 3000. 
   #endif
@@ -92,7 +100,7 @@
 
 // Extended TMC2209 UART settings
 // These settings work only with TMC2209 in UART connection (single wire to TX)
-#if (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
+#if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART) && (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)
   #define RA_RMSCURRENT 1200       // RMS current in mA. Warning: Peak current will be 1.414 times higher!! Do not exceed your steppers max current!
   #define RA_STALL_VALUE 100       // adjust this value if the RA autohoming sequence often false triggers, or triggers too late
 
@@ -103,6 +111,10 @@
   //                  ^^^ leave at 0 for now, doesnt work properly yet
   #define RA_AUDIO_FEEDBACK  0 // If one of these are set to 1, the respective driver will shut off the stealthchop mode, resulting in a audible whine
   #define DEC_AUDIO_FEEDBACK 0 // of the stepper coils. Use this to verify that UART is working properly. 
+  
+  #ifndef UART_CONNECTION_TEST
+    #define UART_CONNECTION_TEST 0
+  #endif
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
