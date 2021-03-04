@@ -4,3 +4,7 @@ venv
 .idea
 
 Configuration_local*
+
+cmake-build-*
+CMakeLists.txt
+CMakeListsPrivate.txt
