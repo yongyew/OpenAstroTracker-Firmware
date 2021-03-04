@@ -8,8 +8,10 @@
 #include "MeadeCommandProcessor.hpp"
 
 #if USE_GPS == 1
-//#include <SoftwareSerial.h>
-#include <TinyGPS++.h>
+PUSH_NO_WARNINGS
+  //#include <SoftwareSerial.h>
+  #include <TinyGPS++.h>
+POP_NO_WARNINGS
 
 //SoftwareSerial SoftSerial(GPS_SERIAL_RX_PIN, GPS_SERIAL_TX_PIN); // RX, TX
 TinyGPSPlus gps;
