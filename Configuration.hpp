@@ -39,7 +39,7 @@
 // Uncomment the definition and set a board (see Constants.hpp for valid values) if you build in Arduino IDE.
 // PlatformIO will set this value automatically and no action is needed.
 #ifndef BOARD
-  // #define BOARD BOARD_AVR_MEGA2560
+  #define BOARD BOARD_AVR_MKS_GEN_L_V21
 #endif
 
 #ifndef BOARD
@@ -271,4 +271,4 @@
 #endif
 
 #include "Configuration_adv.hpp"
-#include "ConfigurationValidation.hpp"
+//#include "ConfigurationValidation.hpp"

@@ -52,10 +52,10 @@
 #define STEPPER_TYPE_NEMA17     1
 
 // Seconds per day (23h 56m 4.095s)
-#define SECONDS_PER_DAY 86164.0905
+#define SECONDS_PER_DAY 86164.0905f
 
 // Earth rotation speed in deg per sec
-#define EARTH_ROTATION_SPEED 360.0 / SECONDS_PER_DAY
+#define EARTH_ROTATION_SPEED 360.0f / SECONDS_PER_DAY
 
 // Stepper drivers
 #define DRIVER_TYPE_ULN2003             1   // Supports halfstepping

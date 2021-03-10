@@ -4,15 +4,19 @@
 
 Driver::Driver(
     const StepperSpecs &stepper,
-    const uint16_t microstepping) : stepper(stepper),
-                                    microstepping(microstepping) {}
+    const uint16_t microstepping) : mStepper(stepper),
+                                    mMicrostepping(microstepping) {}
 
 float Driver::setSpeed(const float degPerSec)
 {
-    if (degPerSec != this->speed)
+    if (degPerSec != this->mSpeed)
     {
-        this->speed = constrain(degPerSec, -stepper.getMaxSpeed(), stepper.getMaxSpeed());
+        this->mSpeed = constrain(degPerSec, -mStepper.getMaxSpeed(), mStepper.getMaxSpeed());
     }
 
-    return this->speed;
+    return this->mSpeed;
+}
+float Driver::getSpeed() const
+{
+    return this->mSpeed;
 }

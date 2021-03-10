@@ -2,6 +2,7 @@
 
 DecAxis::DecAxis(
     const float transmission,
-    Driver &driver) : RotationAxis(transmission, driver)
+    Driver* driver)
+    : RotationAxis(transmission, driver)
 {
 }

@@ -1,6 +1,6 @@
 /****************************************************************************************************************************
    TimerInterrupt.cpp
-   For Arduino AVR boards
+   For Arduino atmega2560 boards
    Written by Khoi Hoang
 
    Built by Khoi Hoang https://github.com/khoih-prog/TimerInterrupt

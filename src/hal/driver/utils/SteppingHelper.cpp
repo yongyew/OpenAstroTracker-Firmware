@@ -2,30 +2,30 @@
 
 #include <Arduino.h>
 
-SteppingHelper::SteppingHelper() {}
+SteppingHelper::SteppingHelper() = default;
 
 void SteppingHelper::setSpeed(const float sps)
 {
-    if (this->sps != sps)
+    if (this->mSps != sps)
     {
-        this->sps = sps;
-        this->steppingInterval = (unsigned long)1000000UL / sps;
+        this->mSps = sps;
+        this->mSteppingInterval =  static_cast<unsigned long>(1000000UL / sps);
     }
 }
 
 bool SteppingHelper::step()
 {
-    if (sps == 0.0f)
+    if (mSps == 0.0f)
         return false;
 
-    if (micros() - lastStepTime >= steppingInterval)
+    if (micros() - mLastStepTime >= mSteppingInterval)
     {
-        lastStepTime += steppingInterval;
+        mLastStepTime += mSteppingInterval;
 
-        if (sps < 0)
-            position--;
+        if (mSps < 0)
+            mPosition--;
         else
-            position++;
+            mPosition++;
 
         return true;
     }
@@ -33,7 +33,7 @@ bool SteppingHelper::step()
     return false;
 }
 
-const long SteppingHelper::getPosition() const
+long SteppingHelper::getPosition() const
 {
-    return position;
+    return mPosition;
 }

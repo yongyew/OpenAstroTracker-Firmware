@@ -8,10 +8,8 @@
 #include "MeadeCommandProcessor.hpp"
 
 #if USE_GPS == 1
-PUSH_NO_WARNINGS
-  //#include <SoftwareSerial.h>
-  #include <TinyGPS++.h>
-POP_NO_WARNINGS
+//#include <SoftwareSerial.h>
+#include <TinyGPS++.h>
 
 //SoftwareSerial SoftSerial(GPS_SERIAL_RX_PIN, GPS_SERIAL_TX_PIN); // RX, TX
 TinyGPSPlus gps;
@@ -19,7 +17,7 @@ TinyGPSPlus gps;
 
 // AZ/ALT Motor pins
 #if AZIMUTH_ALTITUDE_MOTORS == 1
-  // AZ/ALT Pins are defined based on driver type rather than stepper type since the 28BYJ may be used with a TMC2209 or similar driver when modified to bipolar mode
+  // AZ/ALT Pins are defined based on driver type rather than mStepper type since the 28BYJ may be used with a TMC2209 or similar driver when modified to bipolar mode
   #if AZ_DRIVER_TYPE == DRIVER_TYPE_ULN2003
     #define AZmotorPin1  AZ_IN1_PIN    
     #define AZmotorPin3  AZ_IN2_PIN    

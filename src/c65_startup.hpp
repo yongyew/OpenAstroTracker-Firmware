@@ -186,7 +186,7 @@ void printStartupMenu() {
       }
 
       lcdMenu.setCursor(0, 0);
-      lcdMenu.printMenu("Home position?");
+      lcdMenu.printMenu("Home mPosition?");
       lcdMenu.setCursor(0, 1);
       lcdMenu.printMenu(choices);
     }

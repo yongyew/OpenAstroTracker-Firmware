@@ -1,11 +1,23 @@
-#include "Configuration.hpp"
+#pragma once
 
-#define PLATFORM (BOARD & PLATFORM_MASK)
+#include <Stream.h>
 
-#if PLATFORM == PLATFORM_AVR
-#include "AVR/platform.h"
-#elif PLATFORM == PLATFORM_ESP32
-#include "ESP32/platform.h"
-#else
-#error Unsupported platform
-#endif
+namespace hal
+{
+	namespace platform
+	{
+		class Platform
+		{
+		public:
+			Platform(Stream* raSerial, Stream* decSerial, Stream* altSerial = nullptr);
+
+			Stream* getSerial(uint8_t rx, uint8_t tx, bool invertLogic = false);
+		private:
+			Stream* mRaSerial;
+			Stream* mDecSerial;
+			Stream* mAltSerial;
+		};
+	}
+}
+
+

@@ -1,53 +1,53 @@
 #include "StepperSpecs.hpp"
 
-#define SQRT2 1.41421356237309504880
+#define SQRT2F 1.41421356237309504880f
 
 StepperSpecs::StepperSpecs(
-    const int spr,
+    const uint16_t spr,
     const float ratedCurrent,
     const float voltage,
-    const float inductance) : spr(spr),
-                              ratedCurrent(ratedCurrent),
-                              voltage(voltage),
-                              inductance(inductance)
+    const float inductance) : mSPR(spr),
+                              mRatedCurrent(ratedCurrent),
+                              mVoltage(voltage),
+                              mInductance(inductance)
 {
 }
 
-const int StepperSpecs::getStepsPerRevolution() const
+uint16_t StepperSpecs::getStepsPerRevolution() const
 {
-    return spr;
+    return mSPR;
 }
 
-const float StepperSpecs::getRMSCurrent() const
+float StepperSpecs::getRMSCurrent() const
 {
-    return ratedCurrent * SQRT2;
+    return mRatedCurrent / SQRT2F;
 }
 
-const float StepperSpecs::getMaxSPS() const
+float StepperSpecs::getMaxSPS() const
 {
     /**
      * T_s      - time per step
-     * L        - inductance
+     * L        - mInductance
      * I_max    - max current
-     * V        - voltage
+     * V        - mVoltage
      * 
      * T_s = L * I_max * 2 / V
      * Steps per second = 1 / T_s
      */
-    return voltage / (inductance * ratedCurrent * 2);
+    return mVoltage / (mInductance * mRatedCurrent * 2);
 }
 
-const float StepperSpecs::getMaxSpeed() const
+float StepperSpecs::getMaxSpeed() const
 {
     return getMaxSPS() * getDegPerStep();
 }
 
-const float StepperSpecs::getRatedCurrent() const
+float StepperSpecs::getRatedCurrent() const
 {
-    return ratedCurrent;
+    return mRatedCurrent;
 }
 
-const float StepperSpecs::getDegPerStep() const
+float StepperSpecs::getDegPerStep() const
 {
-    return 360.0f / spr;
+    return 360.0f / static_cast<float>(mSPR);
 }

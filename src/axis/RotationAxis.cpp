@@ -1,35 +1,37 @@
 #include "RotationAxis.hpp"
 
-#include <Arduino.h>
 
 RotationAxis::RotationAxis(
     const float transmission,
-    Driver &driver) : transmission(transmission),
-                      driver(driver) {}
+    Driver* driver)
+    : mTransmission(transmission),
+      mDriver(driver)
+{
+}
 
 void RotationAxis::setup()
 {
-    driver.setup();
+    mDriver->setup();
 }
 
 void RotationAxis::loop()
 {
-    driver.loop();
+    mDriver->loop();
 }
 
 void RotationAxis::setSpeed(const float degPerSecond)
 {
-    driver.setSpeed(degPerSecond);
+    mDriver->setSpeed(degPerSecond * mTransmission);
 }
 
 void RotationAxis::moveTo(const float degrees)
 {
-    degsToTarget = degrees - currentPosition;
+    mDegsToTarget = degrees - mCurrentPosition;
 }
 
 void RotationAxis::moveBy(const float degrees)
 {
-    degsToTarget = degrees;
+    mDegsToTarget = degrees;
 }
 
 void RotationAxis::onTargetReached()
@@ -37,17 +39,12 @@ void RotationAxis::onTargetReached()
     // stub implementation for the case if the specific axis implementation does not need this callback
 }
 
-float RotationAxis::getStepsPerDeg() const
-{
-    return 1.0f / getDegPerStep();
-}
-
 float RotationAxis::getCurrentPosition() const
 {
-    return currentPosition;
+    return mCurrentPosition;
 }
 
 void RotationAxis::setCurrentPosition(float degrees)
 {
-    currentPosition = degrees;
+    mCurrentPosition = degrees;
 }

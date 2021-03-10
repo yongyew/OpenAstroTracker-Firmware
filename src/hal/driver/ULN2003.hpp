@@ -11,27 +11,27 @@ class ULN2003 : public Driver
 public:
     ULN2003(
         const StepperSpecs &stepper,
-        const uint16_t microstepping,
-        const uint8_t pin_in1,
-        const uint8_t pin_in2,
-        const uint8_t pin_in3,
-        const uint8_t pin_in4);
+        uint16_t microstepping,
+        uint8_t pin_in1,
+        uint8_t pin_in2,
+        uint8_t pin_in3,
+        uint8_t pin_in4);
 
     void setup() override;
 
     void loop() override;
 
-    const float getPosition() const override;
+    float getPosition() const override;
 
 private:
     inline void setPins();
 
-    const uint8_t pin_in1;
-    const uint8_t pin_in2;
-    const uint8_t pin_in3;
-    const uint8_t pin_in4;
+    const uint8_t mPin_in1;
+    const uint8_t mPin_in2;
+    const uint8_t mPin_in3;
+    const uint8_t mPin_in4;
 
-    uint8_t pin_state_sequence;
+    uint8_t mPinStateSequence;
 
     uint8_t (*rot)(const uint8_t, const uint8_t);
 

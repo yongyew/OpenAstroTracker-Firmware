@@ -539,7 +539,7 @@ Latitude EEPROMStore::getLatitude()
 // Store the configured location Latitude.
 void EEPROMStore::storeLatitude(Latitude const &latitude)
 {
-  int32_t val = static_cast<int32_t>(roundf(latitude.getTotalHours() * 100.0f));
+  int32_t val = round(latitude.getTotalHours() * 100);
   val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing Latitude as %d (%f)", val, latitude.getTotalHours());
 
@@ -570,7 +570,7 @@ Longitude EEPROMStore::getLongitude()
 // Store the configured location Longitude.
 void EEPROMStore::storeLongitude(Longitude const &longitude)
 {
-  int32_t val = static_cast<int32_t>(roundf(longitude.getTotalHours() * 100.0f));
+  int32_t val = round(longitude.getTotalHours() * 100);
   val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing Longitude as %d (%f)", val, longitude.getTotalHours());
 
@@ -653,11 +653,11 @@ int32_t EEPROMStore::getRAParkingPos()
   if (isPresentExtended(PARKING_POS_MARKER_FLAG))
   {
     raParkingPos = readInt32(RA_PARKING_POS_ADDR);
-    LOGV2(DEBUG_EEPROM, F("EEPROM: RA Parking position read as %l"), raParkingPos);
+    LOGV2(DEBUG_EEPROM, F("EEPROM: RA Parking mPosition read as %l"), raParkingPos);
   }
   else
   {
-    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking position"));
+    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking mPosition"));
   }
 
   return raParkingPos; // microsteps (slew)
@@ -684,11 +684,11 @@ int32_t EEPROMStore::getDECParkingPos()
   if (isPresentExtended(PARKING_POS_MARKER_FLAG))
   {
     decParkingPos = readInt32(DEC_PARKING_POS_ADDR);
-    LOGV2(DEBUG_EEPROM, F("EEPROM: DEC Parking position read as %l"), decParkingPos);
+    LOGV2(DEBUG_EEPROM, F("EEPROM: DEC Parking mPosition read as %l"), decParkingPos);
   }
   else
   {
-    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking position"));
+    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking mPosition"));
   }
 
   return decParkingPos; // microsteps (slew)

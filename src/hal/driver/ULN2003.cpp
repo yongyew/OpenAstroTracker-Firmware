@@ -33,33 +33,33 @@ ULN2003::ULN2003(const StepperSpecs &stepper,
 				 const uint8_t pin_in2,
 				 const uint8_t pin_in3,
 				 const uint8_t pin_in4) : Driver(stepper, microstepping),
-										  pin_in1(pin_in1),
-										  pin_in2(pin_in2),
-										  pin_in3(pin_in3),
-										  pin_in4(pin_in4),
-										  pin_state_sequence((microstepping == 1) ? INIT_STATE_FULL_STEP : INIT_STATE_HALF_STEP)
+                                          mPin_in1(pin_in1),
+                                          mPin_in2(pin_in2),
+                                          mPin_in3(pin_in3),
+                                          mPin_in4(pin_in4),
+                                          mPinStateSequence((microstepping == 1) ? INIT_STATE_FULL_STEP : INIT_STATE_HALF_STEP)
 {
 }
 
 void ULN2003::setup()
 {
-	pinMode(pin_in1, OUTPUT);
-	pinMode(pin_in2, OUTPUT);
-	pinMode(pin_in3, OUTPUT);
-	pinMode(pin_in4, OUTPUT);
+	pinMode(mPin_in1, OUTPUT);
+	pinMode(mPin_in2, OUTPUT);
+	pinMode(mPin_in3, OUTPUT);
+	pinMode(mPin_in4, OUTPUT);
 
 	setPins();
 }
 
 void ULN2003::loop()
 {
-	if (this->speed > 0)
+	if (this->mSpeed > 0)
 	{
-		pin_state_sequence = rotl(pin_state_sequence, 1);
+        mPinStateSequence = rotl(mPinStateSequence, 1);
 	}
-	else if (this->speed < 0)
+	else if (this->mSpeed < 0)
 	{
-		pin_state_sequence = rotr(pin_state_sequence, 1);
+        mPinStateSequence = rotr(mPinStateSequence, 1);
 	}
 
 	setPins();
@@ -68,13 +68,13 @@ void ULN2003::loop()
 inline void ULN2003::setPins()
 {
 	// TODO: use direct port manipulation to improve performance
-	digitalWrite(pin_in1, bitRead(pin_state_sequence, 0 * microstepping));
-	digitalWrite(pin_in1, bitRead(pin_state_sequence, 1 * microstepping));
-	digitalWrite(pin_in1, bitRead(pin_state_sequence, 2 * microstepping));
-	digitalWrite(pin_in1, bitRead(pin_state_sequence, 3 * microstepping));
+	digitalWrite(mPin_in1, bitRead(mPinStateSequence, 0 * mMicrostepping));
+	digitalWrite(mPin_in1, bitRead(mPinStateSequence, 1 * mMicrostepping));
+	digitalWrite(mPin_in1, bitRead(mPinStateSequence, 2 * mMicrostepping));
+	digitalWrite(mPin_in1, bitRead(mPinStateSequence, 3 * mMicrostepping));
 }
 
-const float ULN2003::getPosition() const
+float ULN2003::getPosition() const
 {
-	return steppingHelper.getPosition() * stepper.getDegPerStep() / microstepping;
+	return static_cast<float>(steppingHelper.getPosition()) * mStepper.getDegPerStep() / static_cast<float>(mMicrostepping);
 }

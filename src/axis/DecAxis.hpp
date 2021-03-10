@@ -13,7 +13,7 @@ public:
         NORTH = 1
     };
 
-    DecAxis(const float transmission, Driver &driver);
+    DecAxis(float transmission, Driver* driver);
 
     void setGuiding(const Direction direction);
 
