@@ -330,7 +330,7 @@ private:
   int _maxAZAcceleration;
   int _maxALTAcceleration;
   int _backlashCorrectionSteps;
-  int _moveRate;
+  int _slewRate;
   long _raParkingPos;     // Parking mPosition in slewing steps
   long _decParkingPos;    // Parking mPosition in slewing steps
   long _decLowerLimit;    // Movement limit in slewing steps
@@ -341,7 +341,6 @@ private:
   float _rollCalibrationAngle;
 #endif
 
-  long _lastHASet;
   DayTime _LST;
   DayTime _zeroPosRA;
 

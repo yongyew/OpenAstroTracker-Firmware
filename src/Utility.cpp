@@ -141,51 +141,6 @@ int adjustClamp(int current, int adjustBy, int minVal, int maxVal)
   return current;
 }
 
-// Clamp the given number to the limits.
-// Limits are inclusive, so they represent the lowest and highest valid number.
-long clamp(long current, long minVal, long maxVal)
-{
-  if (current > maxVal)
-  {
-    current = maxVal;
-  }
-  if (current < minVal)
-  {
-    current = minVal;
-  }
-  return current;
-}
-
-// Clamp the given number to the limits.
-// Limits are inclusive, so they represent the lowest and highest valid number.
-int clamp(int current, int minVal, int maxVal)
-{
-  if (current > maxVal)
-  {
-    current = maxVal;
-  }
-  if (current < minVal)
-  {
-    current = minVal;
-  }
-  return current;
-}
-
-// Clamp the given number to the limits.
-// Limits are inclusive, so they represent the lowest and highest valid number.
-float clamp(float current, float minVal, float maxVal)
-{
-  if (current > maxVal)
-  {
-    current = maxVal;
-  }
-  if (current < minVal)
-  {
-    current = minVal;
-  }
-  return current;
-}
-
 // Return -1 if the given number is less than zero, 1 if not.
 int sign(long num)
 {

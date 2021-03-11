@@ -26,7 +26,7 @@ void RotationAxis::setSpeed(const float degPerSecond)
 
 void RotationAxis::moveTo(const float degrees)
 {
-    mDegsToTarget = degrees - mCurrentPosition;
+    mDegsToTarget = degrees - mPositionDeg;
 }
 
 void RotationAxis::moveBy(const float degrees)
@@ -39,12 +39,12 @@ void RotationAxis::onTargetReached()
     // stub implementation for the case if the specific axis implementation does not need this callback
 }
 
-float RotationAxis::getCurrentPosition() const
+float RotationAxis::getCurrentDegrees() const
 {
-    return mCurrentPosition;
+    return mPositionDeg;
 }
 
 void RotationAxis::setCurrentPosition(float degrees)
 {
-    mCurrentPosition = degrees;
+    mPositionDeg = degrees;
 }

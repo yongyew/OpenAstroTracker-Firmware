@@ -153,18 +153,6 @@ int adjustWrap(int current, int adjustBy, int minVal, int maxVal);
 // Limits are inclusive, so they represent the lowest and highest valid number.
 int adjustClamp(int current, int adjustBy, int minVal, int maxVal);
 
-// Clamp the given number to the limits.
-// Limits are inclusive, so they represent the lowest and highest valid number.
-long clamp(long current, long minVal, long maxVal);
-
-// Clamp the given number to the limits.
-// Limits are inclusive, so they represent the lowest and highest valid number.
-int clamp(int current, int minVal, int maxVal);
-
-// Clamp the given number to the limits.
-// Limits are inclusive, so they represent the lowest and highest valid number.
-float clamp(float current, float minVal, float maxVal);
-
 // Return -1 if the given number is less than zero, 1 if not.
 int sign(long num);
 
@@ -172,3 +160,9 @@ int sign(long num);
 int fsign(float num);
 
 #endif
+
+#define constrain(x,low,high)     ({ \
+  typeof (x) _x = (x);               \
+  typeof (low) _l = (low);           \
+  typeof (high) _h = (high);         \
+  _x < _l ? _l : _x > _h ? _h : _x; })

@@ -4,8 +4,8 @@
 
 /**
  * Rotation axis used for most movements of the tracking mount. The axis class calculates
- * conversions from arcsecs to steps of its mStepper taking into account mTransmission,
- * max speed, mStepper and driver characteristics etc. It should be used by the mount without
+ * conversions from arcsecs to steps of its stepper taking into account transmission,
+ * max speed, stepper and driver characteristics etc. It should be used by the mount without
  * exposing detailed information about the used hardware.
  **/
 class RotationAxis
@@ -13,7 +13,7 @@ class RotationAxis
 
 public:
     /**
-     * Perform initial setup of this axis. This function will setup all the hadrware used for it.
+     * Perform initial setup of this axis. This function will setup all the hardware used for it.
      */
     virtual void setup();
 
@@ -22,18 +22,6 @@ public:
      * This function has to be called periodically as fast as possible and at least 1 time per step.
      */
     virtual void loop();
-
-    /**
-     * Get current axis mPosition in degrees.
-     */
-    float getCurrentPosition() const;
-
-    /**
-     * Set current axis mPosition.
-     * 
-     * @param degrees Position to be set in degrees. Negative values are allowed.
-     */
-    void setCurrentPosition(float degrees);
 
 protected:
     /**
@@ -45,6 +33,18 @@ protected:
      * @param driver        reference to a specific implementation instance of the Driver interface.
      */
     RotationAxis(float transmission, Driver* driver);
+
+    /**
+     * Get current axis position in degrees.
+     */
+    float getCurrentDegrees() const;
+
+    /**
+     * Set current axis position.
+     *
+     * @param degrees Position to be set in degrees. Negative values are allowed.
+     */
+    void setCurrentPosition(float degrees);
 
     /**
      * Rotate the axis at the specified speed.
@@ -80,7 +80,7 @@ private:
     /**
      * Current mPosition of this axis in degrees.
      */
-    float mCurrentPosition = 0.0f;
+    float mPositionDeg = 0.0f;
 
     /**
      * Transmission ratio of this axis
