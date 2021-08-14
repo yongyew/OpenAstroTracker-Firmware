@@ -9,13 +9,12 @@ namespace hal
 		class Platform
 		{
 		public:
-			Platform(Stream* raSerial, Stream* decSerial, Stream* altSerial = nullptr);
+			Platform(Stream* raSerial, Stream* decSerial);
 
 			Stream* getSerial(uint8_t rx, uint8_t tx, bool invertLogic = false);
 		private:
-			Stream* mRaSerial;
-			Stream* mDecSerial;
-			Stream* mAltSerial;
+			Stream* _serialRA;
+			Stream* _serialDEC;
 		};
 	}
 }

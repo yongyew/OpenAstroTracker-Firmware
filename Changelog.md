@@ -45,12 +45,12 @@
 
 **V1.8.64 - Updates**
 - Cleaned up Meade comments
-- Fixed a bug that caused issues when you turned off microstepping.
+- Fixed a bug that caused issues when you turned off ms.
 - Fixed a bug that prevented DEC from using floating point steps per degree.
 
 **V1.8.63 - Updates**
 - Fixed up tracking speed calculations. Steps per degree now support tenths.
-- Fixed a bug that caused issues when you turned off microstepping.
+- Fixed a bug that caused issues when you turned off ms.
 - Improved stepper servicing performance on ESP32 boards.
 
 **V1.8.62 - Updates**
@@ -107,7 +107,7 @@
 - Added user-submitted support for Bluetooth on the ESP32 board (thanks mholeys)
 
 **V1.8.40 - Updates**
-- Fixed RA negative movement, which was not switching to Slew microstepping settings
+- Fixed RA negative movement, which was not switching to Slew ms settings
 
 **V1.8.39 - Updates**
 - Fixed guiding to not jump back and forth on pulses.

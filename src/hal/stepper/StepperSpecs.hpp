@@ -3,18 +3,18 @@
 #include "stdint.h" // NOLINT(modernize-deprecated-headers)
 
 /**
- * Represents technical specification of a mStepper.
+ * Represents technical specification of a _stepper.
  */
 class StepperSpecs
 {
 public:
     /**
-    * Create a mStepper instance to be used by a driver.
+    * Create a _stepper instance to be used by a driver.
     * mSPR - steps per revolution (1.8° => 200, 0.9° => 400)
-    * supportsMicrostepping - whether this mStepper supports mMicrostepping (e.g. 28byj-48 does not)
-    * mRatedCurrent - current rating of this mStepper motor in A
-    * mVoltage - mStepper mVoltage in V
-    * mInductance - mInductance of the mStepper in mH
+    * supportsMicrostepping - whether this _stepper supports _ms (e.g. 28byj-48 does not)
+    * mRatedCurrent - current rating of this _stepper motor in A
+    * mVoltage - _stepper mVoltage in V
+    * mInductance - mInductance of the _stepper in mH
     */
     StepperSpecs(
         uint16_t spr,
@@ -28,17 +28,17 @@ public:
     uint16_t getStepsPerRevolution() const;
 
     /**
-     * Get amount of degrees for one full step of this mStepper.
+     * Get amount of degrees for one full step of this _stepper.
      */
     float getDegPerStep() const;
 
     /**
-     * Get maximal speed (steps per second) of this mStepper motor
+     * Get maximal speed (steps per second) of this _stepper motor
      */
     float getMaxSPS() const;
 
     /**
-     * Get maximal speed (degrees per second) of this mStepper motor
+     * Get maximal speed (degrees per second) of this _stepper motor
      */
     float getMaxSpeed() const;
 

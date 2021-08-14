@@ -320,7 +320,7 @@ void LcdMenu::printChar(char ch)
 #endif
 }
 
-// Print a character at a specific mPosition
+// Print a character at a specific _position
 void LcdMenu::printAt(int col, int row, char ch)
 {
   _lcd.setCursor(col, _charHeightRows*row);
@@ -334,7 +334,7 @@ uint8_t LcdMenu::readButtons()
 }
 #endif
 
-// Print a string to the LCD at the current cursor mPosition, substituting the special arrows and padding with spaces to the end
+// Print a string to the LCD at the current cursor _position, substituting the special arrows and padding with spaces to the end
 void LcdMenu::printMenu(String line)
 {
   if ((_lastDisplay[_activeRow] != line) || (_activeCol != 0))

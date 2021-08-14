@@ -53,7 +53,7 @@ class Mount {
 public:
   Mount(RaAxis* raAxis, DecAxis* decAxis);
 
-// Configure the AZ/ALT mStepper motors.
+// Configure the AZ/ALT _stepper motors.
 #if AZIMUTH_ALTITUDE_MOTORS == 1
   #if AZ_DRIVER_TYPE == DRIVER_TYPE_ULN2003
     void configureAZStepper(byte pin1, byte pin2, byte pin3, byte pin4, int maxSpeed, int maxAcceleration);
@@ -140,7 +140,7 @@ public:
   // Get current DEC value.
   const Declination currentDEC() const;
 
-  // Set the current RA and DEC mPosition to be the given coordinates
+  // Set the current RA and DEC _position to be the given coordinates
   void syncPosition(DayTime ra, Declination dec);
 
   // Calculates movement parameters and program steppers to move
@@ -175,31 +175,31 @@ public:
   // Same as Arduino delay() but keeps the tracker going.
   void delay(int ms);
 
-  // Gets the mPosition in one of eight directions or tracking
+  // Gets the _position in one of eight directions or tracking
   long getCurrentStepperPosition(int direction);
 
-  // Process any mStepper movement.
+  // Process any _stepper movement.
   void loop();
 
-  // Low-leve process any mStepper movement on interrupt callback.
+  // Low-leve process any _stepper movement on interrupt callback.
   void interruptLoop();
 
-  // Set RA and DEC to the home mPosition
+  // Set RA and DEC to the home _position
   void setTargetToHome();
 
-  // Asynchronously slews the mount to the home mPosition
+  // Asynchronously slews the mount to the home _position
   void goHome();
 
-  // Set the current mStepper positions to be home.
+  // Set the current _stepper positions to be home.
   void setHome(bool clearZeroPos);
   
-  // Set the current mStepper positions to be parking mPosition.
+  // Set the current _stepper positions to be parking _position.
   void setParkingPosition();
 
-  // Set the DEC limit mPosition to the current mStepper mPosition. If upper is true, sets the upper limit, else the lower limit.
+  // Set the DEC limit _position to the current _stepper _position. If upper is true, sets the upper limit, else the lower limit.
   void setDecLimitPosition(bool upper); 
   
-  // Clear the DEC limit mPosition. If upper is true, clears upper limit, else the lower limit.
+  // Clear the DEC limit _position. If upper is true, clears upper limit, else the lower limit.
   void clearDecLimitPosition(bool upper);
 
   // Get the DEC limit positions
@@ -213,7 +213,7 @@ public:
     void finishFindingHomeDEC();
   #endif
 
-  // Asynchronously parks the mount. Moves to the home mPosition and stops all motors.
+  // Asynchronously parks the mount. Moves to the home _position and stops all motors.
   void park();
 
   // Runs the RA motor at twice the speed (or stops it), or the DEC motor at tracking speed for the given duration in ms.
@@ -234,7 +234,7 @@ public:
   // Returns a comma-delimited string with all the mounts' information
   String getStatusString();
 
-  // Get the current speed of the mStepper. NORTH, WEST, TRACKING
+  // Get the current speed of the _stepper. NORTH, WEST, TRACKING
   float getSpeed(int direction);
 
   // Displays the current location of the mount every n ms, where n is defined in Globals.h as DISPLAY_UPDATE_TIME
@@ -331,8 +331,8 @@ private:
   int _maxALTAcceleration;
   int _backlashCorrectionSteps;
   int _slewRate;
-  long _raParkingPos;     // Parking mPosition in slewing steps
-  long _decParkingPos;    // Parking mPosition in slewing steps
+  long _raParkingPos;     // Parking _position in slewing steps
+  long _decParkingPos;    // Parking _position in slewing steps
   long _decLowerLimit;    // Movement limit in slewing steps
   long _decUpperLimit;    // Movement limit in slewing steps
 
@@ -354,17 +354,6 @@ private:
   float _totalRAMove;
   Latitude _latitude;
   Longitude _longitude;
-
-  // Stepper control for RA, DEC and TRK.
-  // AccelStepper* _stepperRA;
-  // AccelStepper* _stepperDEC;
-  // AccelStepper* _stepperTRK;
-  // #if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-  //   TMC2209Stepper* _driverRA;
-  // #endif  
-  // #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
-  //   TMC2209Stepper* _driverDEC;
-  // #endif  
 
   #if AZIMUTH_ALTITUDE_MOTORS == 1
     AccelStepper* _stepperAZ;

@@ -14,7 +14,7 @@ public:
   Declination(int h, int m, int s);
   Declination(float inDegrees);
 
-  virtual void set(int h, int m, int s);
+  virtual void set(int h, int m, int s) override;
 
   // Add degrees, clamp to -180...0
   void addDegrees(int deltaDegrees);

@@ -73,7 +73,7 @@
 // Unfortunately it breaks most functionality that depends on AccelStepper::position(): essentially AccelStepper
 // counts steps, and is unaware of the microstep mode configured in TMC2209Stepper, which in turn affects angle moved per step.
 // Therefore dynamically changing microstep mode causes errors when deriving angle from AccelStepper::position(). 
-// Even though the ULN2003 does not support microstepping, using different modes (full/half-step) between
+// Even though the ULN2003 does not support ms, using different modes (full/half-step) between
 // tracking/guiding & slewing has the problem.
 // Consequently slewing, tracking, guiding now use the same microstep configuration regardless of mode.
 // We plan to re-instate fine modes in a future release, but this will require a significant rework of the implementation.
@@ -147,7 +147,7 @@
 // Which means 108245 steps (26.43 x 4096) moves 360 degrees (V2: 115812 steps (28.27 x 4096))
 // So there are 300.1 steps/degree (108245 / 360)  (V2: 322 (115812 / 360))
 // Theoretically correct RA tracking speed is 1.246586 (300 x 14.95903 / 3600) (V2 : 1.333800 (322 x 14.95903 / 3600) steps/sec (this is for 20T)
-// Include microstepping ratio here such that steps/sec is updates/sec to stepper driver
+// Include ms ratio here such that steps/sec is updates/sec to stepper driver
 #ifndef RA_STEPS_PER_DEGREE
   #define RA_STEPS_PER_DEGREE   (RA_WHEEL_CIRCUMFERENCE / (RA_PULLEY_TEETH * GT2_BELT_PITCH) * RA_STEPPER_SPR * RA_MICROSTEPPING / 360.0f)
 #endif
@@ -158,7 +158,7 @@
 // One DEC revolution needs 14.13 (565.5mm/40mm) stepper revolutions
 // Which means 57907 steps (14.14 x 4096) moves 360 degrees
 // So there are 160.85 steps/degree (57907/360) (this is for 20T)
-// Include microstepping ratio here such that steps/sec is updates/sec to stepper driver
+// Include ms ratio here such that steps/sec is updates/sec to stepper driver
 #ifndef DEC_STEPS_PER_DEGREE
   #define DEC_STEPS_PER_DEGREE  (DEC_WHEEL_CIRCUMFERENCE / (DEC_PULLEY_TEETH * GT2_BELT_PITCH) * DEC_STEPPER_SPR * DEC_MICROSTEPPING / 360.0f)
 #endif

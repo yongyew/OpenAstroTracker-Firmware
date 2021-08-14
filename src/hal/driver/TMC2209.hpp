@@ -13,7 +13,7 @@ class TMC2209 : public Driver
 {
 public:
     TMC2209(const StepperSpecs& stepper,
-        uint16_t microstepping,
+        uint16_t ms,
         Stream* serial,
         uint8_t address,
         uint8_t pin_en,
@@ -29,11 +29,11 @@ public:
     float getPosition() const override;
 
 private:
-    TMC2209Stepper mTmcStepper;
+    TMC2209Stepper _tmcStepper;
 
-    const uint8_t mPin_en;
-    const uint8_t mPin_step;
-    const uint8_t mPin_dir;
+    const uint8_t _pin_en;
+    const uint8_t _pin_step;
+    const uint8_t _pin_dir;
 
-    SteppingHelper mSteppingHelper;
+    SteppingHelper _stepHelper;
 };

@@ -23,10 +23,16 @@ public:
 
     void setGuiding(Direction direction);
 
+    void setSlewingRate(float rate);
+
 private:
     void updateRotationSpeed();
 
-    bool mTrackingEnabled;
-    Direction mGuidingDirection;
-    const float mGuidingSpeedFactor;
+    bool _isTrackingEnabled;
+
+    Direction _guidingDirection;
+
+    const float _guidingSpeedFactor;
+
+    float _slewingRate;
 };

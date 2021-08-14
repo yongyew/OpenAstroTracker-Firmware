@@ -169,11 +169,11 @@ bool gpsAqcuisitionComplete(int &indicator); // defined in c72_menuHA_GPS.hpp
 //                 |    |     |   |  |     |      |
 //                 |    |     |   |  |     |      |
 //                 |    |     |   |  |     |      |
-//                 |    |     |   |  |     |      +------------------ [6] The current DEC mPosition
-//                 |    |     |   |  |     +------------------------- [5] The current RA mPosition
-//                 |    |     |   |  +------------------------------- [4] The Tracking mStepper mPosition
-//                 |    |     |   +---------------------------------- [3] The DEC mStepper mPosition
-//                 |    |     +-------------------------------------- [2] The RA mStepper mPosition
+//                 |    |     |   |  |     |      +------------------ [6] The current DEC _position
+//                 |    |     |   |  |     +------------------------- [5] The current RA _position
+//                 |    |     |   |  +------------------------------- [4] The Tracking _stepper _position
+//                 |    |     |   +---------------------------------- [3] The DEC _stepper _position
+//                 |    |     +-------------------------------------- [2] The RA _stepper _position
 //                 |    +-------------------------------------------- [1] The motion state.
 //                 |                                                      First character is RA slewing state ('R' is East, 'r' is West, '-' is stopped).
 //                 |                                                      Second character is DEC slewing state ('d' is North, 'D' is South, '-' is stopped).
@@ -305,13 +305,13 @@ bool gpsAqcuisitionComplete(int &indicator); // defined in c72_menuHA_GPS.hpp
 //
 // :hP#
 //      Park Scope and stop motors
-//      This slews the scope back to it's home mPosition (RA ring centered, DEC
+//      This slews the scope back to it's home _position (RA ring centered, DEC
 //      at 90, basically pointing at celestial pole) and stops all movement (including tracking).
 //      Returns: Nothing
 //
 // :hF#
-//      Move Scope to Home mPosition
-//      This slews the scope back to its home mPosition (RA ring centered, DEC
+//      Move Scope to Home _position
+//      This slews the scope back to its home _position (RA ring centered, DEC
 //      at 90, basically pointing at celestial pole). Mount will keep tracking.
 //      Returns: Nothing
 //
@@ -393,22 +393,22 @@ bool gpsAqcuisitionComplete(int &indicator); // defined in c72_menuHA_GPS.hpp
 //
 // :XGB#
 //      Get Backlash correction steps
-//      Get the number of steps the RA mStepper motor needs to overshoot and backtrack when slewing east.
+//      Get the number of steps the RA _stepper motor needs to overshoot and backtrack when slewing east.
 //      Returns: integer#
 //
 // :XGR#
 //      Get RA steps
-//      Get the number of steps the RA mStepper motor needs to take to rotate RA by one degree
+//      Get the number of steps the RA _stepper motor needs to take to rotate RA by one degree
 //      Returns: float#
 //
 // :XGD#
 //      Get DEC steps
-//      Get the number of steps the DEC mStepper motor needs to take to rotate DEC by one degree
+//      Get the number of steps the DEC _stepper motor needs to take to rotate DEC by one degree
 //      Returns: float#
 //
 // :XGDL#
 //      Get DEC limits
-//      Get the lower and upper limits for the DEC mStepper motor in steps
+//      Get the lower and upper limits for the DEC _stepper motor in steps
 //      Returns: integer|integer#
 //
 // :XGS#
@@ -432,7 +432,7 @@ bool gpsAqcuisitionComplete(int &indicator); // defined in c72_menuHA_GPS.hpp
 //      Where <board> is one of the supported boards (currently Mega, ESP32)
 //            <Stepper Info> is a pipe-delimited string of Motor type (NEMA or 28BYJ), Pulley Teeth, Steps per revolution)
 //            <GPS info> is either NO_GPS or GPS, depending on whether a GPS module is present
-//            <AzAlt info> is either NO_AZ_ALT or AUTO_AZ_ALT, depending on whether the AutoPA mStepper motors are present
+//            <AzAlt info> is either NO_AZ_ALT or AUTO_AZ_ALT, depending on whether the AutoPA _stepper motors are present
 //            <Gyro info> is either NO_GYRO or GYRO depending on whether the Digial level is present
 //      Example: ESP32,28BYJ|16|4096.00,28BYJ|16|4096.00,NO_GPS,NO_AZ_ALT,NO_GYRO#
 //
@@ -449,39 +449,39 @@ bool gpsAqcuisitionComplete(int &indicator); // defined in c72_menuHA_GPS.hpp
 //
 // :XSBn#
 //      Set Backlash correction steps
-//      Sets the number of steps the RA mStepper motor needs to overshoot and backtrack when slewing east.
+//      Sets the number of steps the RA _stepper motor needs to overshoot and backtrack when slewing east.
 //      Returns: nothing
 //
 // :XSRn.n#
 //      Set RA steps
-//      Set the number of steps the RA mStepper motor needs to take to rotate by one degree.
+//      Set the number of steps the RA _stepper motor needs to take to rotate by one degree.
 //      Where n.n is the number of steps (only one decimal point is supported)
 //      Returns: nothing
 //
 // :XSDn.n#
 //      Set DEC steps
-//      Set the number of steps the DEC mStepper motor needs to take to rotate by one degree.
+//      Set the number of steps the DEC _stepper motor needs to take to rotate by one degree.
 //      Where n.n is the number of steps (only one decimal point is supported)
 //      Returns: nothing
 //
 // :XSDLU#
 //      Set DEC upper limit
-//      Set the upper limit for the DEC mStepper motor to the current mPosition
+//      Set the upper limit for the DEC _stepper motor to the current _position
 //      Returns: nothing
 //
 // :XSDLu#
 //      Clear DEC upper limit
-//      Clears the upper limit for the DEC mStepper motor
+//      Clears the upper limit for the DEC _stepper motor
 //      Returns: nothing
 //
 // :XSDLL#
 //      Set DEC lower limit
-//      Set the lowerlimit for the DEC mStepper motor to the current mPosition
+//      Set the lowerlimit for the DEC _stepper motor to the current _position
 //      Returns: nothing
 //
 // :XSDLl#
 //      Clear DEC lower limit
-//      Clear the lower limit for the DEC mStepper motor
+//      Clear the lower limit for the DEC _stepper motor
 //      Returns: nothing
 //
 // :XSSn.nnn#
@@ -796,7 +796,7 @@ String MeadeCommandProcessor::handleMeadeSetInfo(String inCmd)
   }
   else if ((inCmd[0] == 'Y') && inCmd.length() == 19)
   {
-    // Sync RA, DEC - current mPosition is the given coordinate
+    // Sync RA, DEC - current _position is the given coordinate
     //   0123456789012345678
     // :SY+84*03:02.18:34:12
     if (((inCmd[4] == '*') || (inCmd[4] == ':')) && (inCmd[7] == ':') && (inCmd[10] == '.') && (inCmd[13] == ':') && (inCmd[16] == ':'))

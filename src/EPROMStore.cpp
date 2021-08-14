@@ -1,5 +1,6 @@
 #include "inc/Globals.hpp"
 PUSH_NO_WARNINGS
+#include "inttypes.h" // NOLINT(modernize-deprecated-headers)
 #include <EEPROM.h>
 POP_NO_WARNINGS
 
@@ -408,7 +409,7 @@ float EEPROMStore::getRAStepsPerDegree()
 void EEPROMStore::storeRAStepsPerDegree(float raStepsPerDegree)
 {
   int32_t val = raStepsPerDegree * 10; // Store as tenths of degree
-  val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+  val = constrain(val, INT16_MIN, INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing RA steps to %d (%f)", val, raStepsPerDegree);
 
   updateInt16(RA_STEPS_DEGREE_ADDR, val);
@@ -439,7 +440,7 @@ float EEPROMStore::getDECStepsPerDegree()
 void EEPROMStore::storeDECStepsPerDegree(float decStepsPerDegree)
 {
   int32_t val = decStepsPerDegree * 10; // Store as tenths of degree
-  val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+  val = constrain(val, INT16_MIN, INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing DEC steps to %d (%f)", val, decStepsPerDegree);
 
   updateInt16(DEC_STEPS_DEGREE_ADDR, val);
@@ -456,8 +457,8 @@ float EEPROMStore::getSpeedFactor()
   if (isPresent(SPEED_FACTOR_FLAG))
   {
     // Speed factor bytes are in split locations :-(
-    int val = readUint8(SPEED_FACTOR_LOW_ADDR) + (int)readUint8(SPEED_FACTOR_HIGH_ADDR) * 256;
-    speedFactor = 1.0 + val / 10000.0;
+    int val = readUint8(SPEED_FACTOR_LOW_ADDR) + (int) readUint8(SPEED_FACTOR_HIGH_ADDR) * 256;
+    speedFactor = 1.0f + static_cast<float>(val) / 10000.0f;
     LOGV3(DEBUG_EEPROM, F("EEPROM: Speed Marker OK! Speed adjust is %d, speedFactor is %f"), val, speedFactor);
   }
   else
@@ -473,7 +474,7 @@ void EEPROMStore::storeSpeedFactor(float speedFactor)
 {
   // Store the fractional speed factor since it is a number very close to 1
   int32_t val = (speedFactor - 1.0f) * 10000.0f;
-  val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+  val = constrain(val, INT16_MIN, INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing Speed Factor to %d (%f)", val, speedFactor);
 
   // Speed factor bytes are in split locations :-(
@@ -539,8 +540,8 @@ Latitude EEPROMStore::getLatitude()
 // Store the configured location Latitude.
 void EEPROMStore::storeLatitude(Latitude const &latitude)
 {
-  int32_t val = round(latitude.getTotalHours() * 100);
-  val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+  int32_t val = roundf(latitude.getTotalHours() * 100);
+  val = constrain(val, INT16_MIN, INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing Latitude as %d (%f)", val, latitude.getTotalHours());
 
   updateInt16(LATITUDE_ADDR, val);
@@ -570,8 +571,8 @@ Longitude EEPROMStore::getLongitude()
 // Store the configured location Longitude.
 void EEPROMStore::storeLongitude(Longitude const &longitude)
 {
-  int32_t val = round(longitude.getTotalHours() * 100);
-  val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+  int32_t val = roundf(longitude.getTotalHours() * 100);
+  val = constrain(val, INT16_MIN, INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing Longitude as %d (%f)", val, longitude.getTotalHours());
 
   updateInt16(LONGITUDE_ADDR, val);
@@ -603,7 +604,7 @@ float EEPROMStore::getPitchCalibrationAngle()
 void EEPROMStore::storePitchCalibrationAngle(float pitchCalibrationAngle)
 {
   int32_t val = (pitchCalibrationAngle * 100) + 16384;
-  val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+  val = constrain(val, INT16_MIN, INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing Pitch calibration %d (%f)", val, pitchCalibrationAngle);
 
   updateInt16(PITCH_OFFSET_ADDR, val);
@@ -635,7 +636,7 @@ float EEPROMStore::getRollCalibrationAngle()
 void EEPROMStore::storeRollCalibrationAngle(float rollCalibrationAngle)
 {
   int32_t val = (rollCalibrationAngle * 100) + 16384;
-  val = clamp(val, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+  val = constrain(val, INT16_MIN, INT16_MAX);
   LOGV3(DEBUG_EEPROM, "EEPROM: Storing Roll calibration %d (%f)", val, rollCalibrationAngle);
 
   updateInt16(ROLL_OFFSET_ADDR, val);
@@ -653,11 +654,11 @@ int32_t EEPROMStore::getRAParkingPos()
   if (isPresentExtended(PARKING_POS_MARKER_FLAG))
   {
     raParkingPos = readInt32(RA_PARKING_POS_ADDR);
-    LOGV2(DEBUG_EEPROM, F("EEPROM: RA Parking mPosition read as %l"), raParkingPos);
+    LOGV2(DEBUG_EEPROM, F("EEPROM: RA Parking _position read as %l"), raParkingPos);
   }
   else
   {
-    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking mPosition"));
+    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking _position"));
   }
 
   return raParkingPos; // microsteps (slew)
@@ -684,11 +685,11 @@ int32_t EEPROMStore::getDECParkingPos()
   if (isPresentExtended(PARKING_POS_MARKER_FLAG))
   {
     decParkingPos = readInt32(DEC_PARKING_POS_ADDR);
-    LOGV2(DEBUG_EEPROM, F("EEPROM: DEC Parking mPosition read as %l"), decParkingPos);
+    LOGV2(DEBUG_EEPROM, F("EEPROM: DEC Parking _position read as %l"), decParkingPos);
   }
   else
   {
-    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking mPosition"));
+    LOGV1(DEBUG_EEPROM, F("EEPROM: No stored value for Parking _position"));
   }
 
   return decParkingPos; // microsteps (slew)

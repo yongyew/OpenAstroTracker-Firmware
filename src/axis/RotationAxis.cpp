@@ -4,47 +4,32 @@
 RotationAxis::RotationAxis(
     const float transmission,
     Driver* driver)
-    : mTransmission(transmission),
-      mDriver(driver)
+    : _transmission(transmission),
+      _driver(driver)
 {
 }
 
 void RotationAxis::setup()
 {
-    mDriver->setup();
+    _driver->setup();
 }
 
 void RotationAxis::loop()
 {
-    mDriver->loop();
+    _driver->loop();
 }
 
 void RotationAxis::setSpeed(const float degPerSecond)
 {
-    mDriver->setSpeed(degPerSecond * mTransmission);
+    _driver->setSpeed(degPerSecond * _transmission);
 }
 
-void RotationAxis::moveTo(const float degrees)
+float RotationAxis::getCurrentPosition() const
 {
-    mDegsToTarget = degrees - mPositionDeg;
-}
-
-void RotationAxis::moveBy(const float degrees)
-{
-    mDegsToTarget = degrees;
-}
-
-void RotationAxis::onTargetReached()
-{
-    // stub implementation for the case if the specific axis implementation does not need this callback
-}
-
-float RotationAxis::getCurrentDegrees() const
-{
-    return mPositionDeg;
+    return _positionDeg;
 }
 
 void RotationAxis::setCurrentPosition(float degrees)
 {
-    mPositionDeg = degrees;
+    _positionDeg = degrees;
 }

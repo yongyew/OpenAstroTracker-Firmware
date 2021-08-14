@@ -76,8 +76,8 @@ private:
   //                             Latitude (12/13) --------+ ||||
   //                       Backlash steps (10/11) ----------+|||
   //                           Speed factor (0/3) -----------+||
-  //     DEC mStepper motor steps per degree (8/9) ------------+|
-  //      RA mStepper motor steps per degree (6/7) -------------+
+  //     DEC _stepper motor steps per degree (8/9) ------------+|
+  //      RA _stepper motor steps per degree (6/7) -------------+
   //
   // Locations for HATime (1/2), Brightness (16)
   //

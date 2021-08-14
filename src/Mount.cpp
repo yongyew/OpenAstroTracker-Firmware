@@ -188,7 +188,7 @@ void Mount::readPersistentData()
 
     _raParkingPos = EEPROMStore::getRAParkingPos();
     _decParkingPos = EEPROMStore::getDECParkingPos();
-    LOGV3(DEBUG_INFO, F("Mount: EEPROM: Parking mPosition read as R:%l, D:%l"), _raParkingPos, _decParkingPos);
+    LOGV3(DEBUG_INFO, F("Mount: EEPROM: Parking _position read as R:%l, D:%l"), _raParkingPos, _decParkingPos);
 
     _decLowerLimit = EEPROMStore::getDECLowerLimit();
     _decUpperLimit = EEPROMStore::getDECUpperLimit();
@@ -277,7 +277,7 @@ void Mount::configureAZdriver(Stream *serial, float rsense, byte driveraddress, 
   _driverAZ->toff(4);
   _driverAZ->blank_time(24);
   _driverAZ->rms_current(rmscurrent);
-  _driverAZ->microsteps(AZ_MICROSTEPPING == 1 ? 0 : AZ_MICROSTEPPING);   // If 1 then disable mMicrostepping
+  _driverAZ->microsteps(AZ_MICROSTEPPING == 1 ? 0 : AZ_MICROSTEPPING);   // If 1 then disable _ms
   _driverAZ->fclktrim(4);
   _driverAZ->TCOOLTHRS(0xFFFFF);  //xFFFFF);
 }
@@ -295,7 +295,7 @@ void Mount::configureAZdriver(uint16_t AZ_SW_RX, uint16_t AZ_SW_TX, float rsense
   _driverAZ->toff(4);
   _driverAZ->blank_time(24);
   _driverAZ->rms_current(rmscurrent);
-  _driverAZ->microsteps(AZ_MICROSTEPPING == 1 ? 0 : AZ_MICROSTEPPING);   // If 1 then disable mMicrostepping
+  _driverAZ->microsteps(AZ_MICROSTEPPING == 1 ? 0 : AZ_MICROSTEPPING);   // If 1 then disable _ms
   _driverAZ->fclktrim(4);
   _driverAZ->TCOOLTHRS(0xFFFFF);  //xFFFFF);
 }
@@ -319,7 +319,7 @@ void Mount::configureALTdriver(Stream *serial, float rsense, byte driveraddress,
   _driverALT->toff(4);
   _driverALT->blank_time(24);
   _driverALT->rms_current(rmscurrent);
-  _driverALT->microsteps(ALT_MICROSTEPPING == 1 ? 0 : ALT_MICROSTEPPING);   // If 1 then disable mMicrostepping
+  _driverALT->microsteps(ALT_MICROSTEPPING == 1 ? 0 : ALT_MICROSTEPPING);   // If 1 then disable _ms
   _driverALT->fclktrim(4);
   _driverALT->TCOOLTHRS(0xFFFFF);  //xFFFFF);
 }
@@ -337,7 +337,7 @@ void Mount::configureALTdriver(uint16_t ALT_SW_RX, uint16_t ALT_SW_TX, float rse
   _driverALT->toff(4);
   _driverALT->blank_time(24);
   _driverALT->rms_current(rmscurrent);
-  _driverALT->microsteps(ALT_MICROSTEPPING == 1 ? 0 : ALT_MICROSTEPPING);   // If 1 then disable mMicrostepping
+  _driverALT->microsteps(ALT_MICROSTEPPING == 1 ? 0 : ALT_MICROSTEPPING);   // If 1 then disable _ms
   _driverALT->fclktrim(4);
   _driverALT->TCOOLTHRS(0xFFFFF);  //xFFFFF);
 }
@@ -368,7 +368,7 @@ void Mount::setSpeedCalibration(float val, bool saveToStorage)
 
     // Tracking speed has to be exactly the rotation speed of the earth. The earth rotates 360° per astronomical day.
     // This is 23h 56m 4.0905s, therefore the dimensionless _trackingSpeedCalibration = (23h 56m 4.0905s / 24 h) * mechanical calibration factor
-    // Also compensate for higher precision mMicrostepping in tracking mode
+    // Also compensate for higher precision _ms in tracking mode
     _trackingSpeed = _trackingSpeedCalibration * RA_STEPS_PER_DEGREE * RA_MICROSTEPPING * 360.0f
         / secondsPerDay;   // (fraction of day) * u-steps/deg * (u-steps/u-steps) * deg / (sec/day) = u-steps / sec
     LOGV2(DEBUG_MOUNT, F("Mount: RA steps per degree is %f steps/deg"), RA_STEPS_PER_DEGREE);
@@ -377,7 +377,7 @@ void Mount::setSpeedCalibration(float val, bool saveToStorage)
     if (saveToStorage)
         EEPROMStore::storeSpeedFactor(_trackingSpeedCalibration);
 
-    // If we are currently tracking, update the speed. No need to update mMicrostepping mode
+    // If we are currently tracking, update the speed. No need to update _ms mode
     // if (isSlewingTRK()) {
     //   LOGV2(DEBUG_STEPPERS, F("SpeedCal: TRK.setSpeed(%f)"), _trackingSpeed);
     //   _stepperTRK->setSpeed(_trackingSpeed);
@@ -568,7 +568,11 @@ void Mount::setSlewRate(int rate)
 {
     _slewRate = constrain(rate, 1, 4);
     float speedFactor[] = { 0, 0.05, 0.2, 0.5, 1.0 };
+
     LOGV3(DEBUG_MOUNT, F("Mount::setSlewRate: rate is %d -> %f"), _slewRate, speedFactor[_slewRate]);
+
+    
+
     // TODO: set slew rate on axis
     LOGV3(DEBUG_MOUNT,
         F("Mount::setSlewRate: new speeds are RA: %f  DEC: %f"),
@@ -701,7 +705,7 @@ Declination& Mount::targetDEC()
 const DayTime Mount::currentRA() const
 {
     // How many steps moves the RA ring one sidereal hour along. One sidereal hour moves just shy of 15 degrees
-    // TODO: currentPosition() may not be reliable if switching mMicrostepping between guiding & slewing. This implementation assumes no time in guiding mode
+    // TODO: currentPosition() may not be reliable if switching _ms between guiding & slewing. This implementation assumes no time in guiding mode
     float stepsPerSiderealHour = _stepsPerRADegree * siderealDegreesInHour; // u-steps/degree * degrees/hr = u-steps/hr
     float hourPos = -_stepperRA->currentPosition() / stepsPerSiderealHour; // u-steps / u-steps/hr = hr
 
@@ -762,7 +766,7 @@ const Declination Mount::currentDEC() const
 // syncPosition
 //
 /////////////////////////////////
-// Set the current RA and DEC mPosition to be the given coordinate. We do this by setting the mStepper motor coordinate
+// Set the current RA and DEC _position to be the given coordinate. We do this by setting the _stepper motor coordinate
 // to be at the calculated positions (that they would be if we were slewing there).
 void Mount::syncPosition(DayTime ra, Declination dec)
 {
@@ -773,7 +777,7 @@ void Mount::syncPosition(DayTime ra, Declination dec)
     LOGV3(DEBUG_MOUNT, "Mount: Sync Position to RA: %s and DEC: %s", _targetRA.ToString(), _targetDEC.ToString());
     calculateRAandDECSteppers(targetRAPosition, targetDECPosition);
     LOGV3(DEBUG_STEPPERS,
-        F("STEP-syncPosition: Set current mPosition to RA: %f and DEC: %f"),
+        F("STEP-syncPosition: Set current _position to RA: %f and DEC: %f"),
         targetRAPosition,
         targetDECPosition);
     _stepperRA->setCurrentPosition(targetRAPosition);     // u-steps (in slew mode)
@@ -807,7 +811,7 @@ void Mount::startSlewingToTarget()
     LOGV2(DEBUG_STEPPERS, F("STEP-startSlewingToTarget: Set RA  to MaxSpeed(%d)"), _maxRASpeed);
     _stepperRA->setMaxSpeed(_maxRASpeed);
 
-    // Calculate new RA mStepper target (and DEC)
+    // Calculate new RA _stepper target (and DEC)
     // TODO: Depends on slewing or guiding mode
     _currentDECStepperPosition = _stepperDEC->currentPosition();
     _currentRAStepperPosition = _stepperRA->currentPosition();
@@ -832,7 +836,7 @@ void Mount::startSlewingToTarget()
     }
     else
     {
-        // Since we won't be moving we need to set mMicrostepping back to tracking
+        // Since we won't be moving we need to set _ms back to tracking
         #if RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
         // TODO: Fix broken microstep management to re-instate fine pointing
         // LOGV2(DEBUG_STEPPERS, F("STEP-startSlewingToTarget: No slew. Switching RA driver to microsteps(%d)"), RA_TRACKING_MICROSTEPPING);
@@ -875,7 +879,7 @@ void Mount::stopGuiding(bool ra, bool dec)
             _stepperTRK->runSpeed();
         }
 
-        // TODO: If mMicrostepping for guiding is changed, re-enable this
+        // TODO: If _ms for guiding is changed, re-enable this
         // #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
         //   _driverDEC->microsteps(DEC_SLEW_MICROSTEPPING == 1 ? 0 : DEC_SLEW_MICROSTEPPING);
         // #endif
@@ -899,10 +903,10 @@ void Mount::guidePulse(byte direction, int duration)
 {
     LOGV3(DEBUG_STEPPERS, F("STEP-guidePulse: > Guide Pulse %d for %dms"), direction, duration);
 
-    // DEC mStepper moves at sidereal rate in both directions
-    // RA mStepper moves at either 2x sidereal rate or stops.
+    // DEC _stepper moves at sidereal rate in both directions
+    // RA _stepper moves at either 2x sidereal rate or stops.
     // TODO: Do we need to adjust with _trackingSpeedCalibration?
-    // Also compensate for mMicrostepping mode change between slew & guiding/tracking
+    // Also compensate for _ms mode change between slew & guiding/tracking
     float decGuidingSpeed = _stepsPerDECDegree * DEC_MICROSTEPPING * siderealDegreesInHour
         / 3600.0f;    // u-steps/deg * deg/hr / sec/hr = u-steps/sec
     float raGuidingSpeed = _stepsPerRADegree * RA_MICROSTEPPING * siderealDegreesInHour
@@ -919,7 +923,7 @@ void Mount::guidePulse(byte direction, int duration)
     case NORTH:
         #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
         // TODO: Fix broken microstep management to re-instate fine pointing. Also fix code in stopGuiding()
-        // _driverDEC->microsteps(DEC_GUIDE_MICROSTEPPING == 1 ? 0 : DEC_GUIDE_MICROSTEPPING);   // If 1 then disable mMicrostepping
+        // _driverDEC->microsteps(DEC_GUIDE_MICROSTEPPING == 1 ? 0 : DEC_GUIDE_MICROSTEPPING);   // If 1 then disable _ms
         #endif
         LOGV2(DEBUG_STEPPERS, F("STEP-guidePulse:  DEC.setSpeed(%f)"), DEC_PULSE_MULTIPLIER * decGuidingSpeed);
         _stepperDEC->setSpeed(DEC_PULSE_MULTIPLIER * decGuidingSpeed);
@@ -930,7 +934,7 @@ void Mount::guidePulse(byte direction, int duration)
     case SOUTH:
         #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
         // TODO: Fix broken microstep management to re-instate fine pointing. Also fix code in stopGuiding()
-        // _driverDEC->microsteps(DEC_GUIDE_MICROSTEPPING == 1 ? 0 : DEC_GUIDE_MICROSTEPPING);   // If 1 then disable mMicrostepping
+        // _driverDEC->microsteps(DEC_GUIDE_MICROSTEPPING == 1 ? 0 : DEC_GUIDE_MICROSTEPPING);   // If 1 then disable _ms
         #endif
         LOGV2(DEBUG_STEPPERS, F("STEP-guidePulse:  DEC.setSpeed(%f)"), -DEC_PULSE_MULTIPLIER * decGuidingSpeed);
         _stepperDEC->setSpeed(-DEC_PULSE_MULTIPLIER * decGuidingSpeed);
@@ -939,7 +943,7 @@ void Mount::guidePulse(byte direction, int duration)
         break;
 
     case WEST:
-        // We were in tracking mode before guiding, so no need to update mMicrostepping mode on RA driver
+        // We were in tracking mode before guiding, so no need to update _ms mode on RA driver
         LOGV2(DEBUG_STEPPERS, F("STEP-guidePulse:  TRK.setSpeed(%f)"), (RA_PULSE_MULTIPLIER + 1) * raGuidingSpeed);
         _stepperTRK->setSpeed((RA_PULSE_MULTIPLIER + 1) * raGuidingSpeed);   // Faster than siderael
         _mountStatus |= STATUS_GUIDE_PULSE | STATUS_GUIDE_PULSE_RA;
@@ -947,7 +951,7 @@ void Mount::guidePulse(byte direction, int duration)
         break;
 
     case EAST:
-        // We were in tracking mode before guiding, so no need to update mMicrostepping mode on RA driver
+        // We were in tracking mode before guiding, so no need to update _ms mode on RA driver
         LOGV2(DEBUG_STEPPERS, F("STEP-guidePulse:  TRK.setSpeed(%f)"), (RA_PULSE_MULTIPLIER - 1) * raGuidingSpeed);
         _stepperTRK->setSpeed((RA_PULSE_MULTIPLIER - 1) * raGuidingSpeed);   // Slower than siderael
         _mountStatus |= STATUS_GUIDE_PULSE | STATUS_GUIDE_PULSE_RA;
@@ -1017,7 +1021,7 @@ void Mount::runDriftAlignmentPhase(int direction, int durationSecs)
             yield();
         }
 
-        // Re-configure the mStepper to the correct parameters.
+        // Re-configure the _stepper to the correct parameters.
         _stepperRA->setMaxSpeed(_maxRASpeed);
         break;
     }
@@ -1154,7 +1158,7 @@ void Mount::setSpeed(int which, float speedDegsPerSec)
 //
 // park
 //
-// Targets the mount to move to the home mPosition and
+// Targets the mount to move to the home _position and
 // turns off all motors once it gets there.
 /////////////////////////////////
 void Mount::park()
@@ -1171,7 +1175,7 @@ void Mount::park()
 //
 // goHome
 //
-// Synchronously moves mount to home mPosition
+// Synchronously moves mount to home _position
 /////////////////////////////////
 void Mount::goHome()
 {
@@ -1641,18 +1645,18 @@ void Mount::stopSlewing(int direction)
         // Turn off tracking
         _mountStatus &= ~STATUS_TRACKING;
 
-        LOGV1(DEBUG_STEPPERS, F("STEP-stopSlewing: TRK mStepper stop()"));
+        LOGV1(DEBUG_STEPPERS, F("STEP-stopSlewing: TRK _stepper stop()"));
         _stepperTRK->stop();
     }
 
     if ((direction & (NORTH | SOUTH)) != 0)
     {
-        LOGV1(DEBUG_STEPPERS, F("STEP-stopSlewing: DEC mStepper stop()"));
+        LOGV1(DEBUG_STEPPERS, F("STEP-stopSlewing: DEC _stepper stop()"));
         _stepperDEC->stop();
     }
     if ((direction & (WEST | EAST)) != 0)
     {
-        LOGV1(DEBUG_STEPPERS, F("STEP-stopSlewing: RA mStepper stop()"));
+        LOGV1(DEBUG_STEPPERS, F("STEP-stopSlewing: RA _stepper stop()"));
         _stepperRA->stop();
     }
 }
@@ -1762,7 +1766,7 @@ void Mount::interruptLoop()
 //
 // loop
 //
-// Process any mStepper changes.
+// Process any _stepper changes.
 /////////////////////////////////
 void Mount::loop()
 {
@@ -1821,7 +1825,7 @@ void Mount::loop()
             #if DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
             // TODO: Fix broken microstep management to re-instate fine pointing
             // LOGV2(DEBUG_STEPPERS, F("STEP-loop: DEC driver setMicrosteps(%d)"), DEC_SLEW_MICROSTEPPING == 1 ? 0 : DEC_SLEW_MICROSTEPPING);
-            // _driverDEC->microsteps(DEC_SLEW_MICROSTEPPING == 1 ? 0 : DEC_SLEW_MICROSTEPPING);   // If 1 then disable mMicrostepping
+            // _driverDEC->microsteps(DEC_SLEW_MICROSTEPPING == 1 ? 0 : DEC_SLEW_MICROSTEPPING);   // If 1 then disable _ms
             #endif
         }
         return;
@@ -1929,7 +1933,7 @@ void Mount::loop()
                 if (_slewingToHome)
                 {
                     LOGV1(DEBUG_MOUNT | DEBUG_STEPPERS,
-                        F("Mount::Loop:   Was Slewing home, so setting mStepper RA and TRK to zero."));
+                        F("Mount::Loop:   Was Slewing home, so setting _stepper RA and TRK to zero."));
                     _stepperRA->setCurrentPosition(0);
                     LOGV1(DEBUG_STEPPERS, F("STEP-loop:  TRK.setCurrentPos(0)"));
                     _stepperTRK->setCurrentPosition(0);
@@ -1937,7 +1941,7 @@ void Mount::loop()
                     if (isParking())
                     {
                         LOGV1(DEBUG_MOUNT | DEBUG_STEPPERS,
-                            F("Mount::Loop:   Was parking, so no tracking. Proceeding to park mPosition..."));
+                            F("Mount::Loop:   Was parking, so no tracking. Proceeding to park _position..."));
                         _mountStatus &= ~STATUS_PARKING;
                         _slewingToPark = true;
                         _stepperRA->moveTo(_raParkingPos);
@@ -1964,7 +1968,7 @@ void Mount::loop()
                 }
                 else if (_slewingToPark)
                 {
-                    LOGV1(DEBUG_MOUNT | DEBUG_STEPPERS, F("Mount::Loop:   Arrived at park mPosition..."));
+                    LOGV1(DEBUG_MOUNT | DEBUG_STEPPERS, F("Mount::Loop:   Arrived at park _position..."));
                     _mountStatus &= ~(STATUS_PARKING_POS | STATUS_SLEWING_TO_TARGET);
                     _slewingToPark = false;
                 }
@@ -2002,7 +2006,7 @@ bool Mount::isBootComplete()
 void Mount::setParkingPosition()
 {
     _raParkingPos = _stepperRA->currentPosition() - _stepperTRK
-        ->currentPosition(); // TODO: These are not like-for-like if different mMicrostepping configurations are used between TRK and RA!
+        ->currentPosition(); // TODO: These are not like-for-like if different _ms configurations are used between TRK and RA!
     _decParkingPos = _stepperDEC->currentPosition();
 
     LOGV3(DEBUG_MOUNT, F("Mount::setParkingPos: parking RA: %l  DEC:%l"), _raParkingPos, _decParkingPos);
@@ -2098,7 +2102,7 @@ void Mount::setHome(bool clearZeroPos)
 //
 // setTargetToHome
 //
-// Set RA and DEC to the home mPosition
+// Set RA and DEC to the home _position
 /////////////////////////////////
 void Mount::setTargetToHome()
 {
@@ -2128,7 +2132,7 @@ void Mount::setTargetToHome()
     // Set DEC to pole
     _targetDEC.set(0, 0, 0);
     _slewingToHome = true;
-    // Stop the tracking mStepper
+    // Stop the tracking _stepper
     LOGV1(DEBUG_MOUNT, F("Mount::setTargetToHome() stop tracking"));
     stopSlewing(TRACKING);
 }
@@ -2137,7 +2141,7 @@ void Mount::setTargetToHome()
 //
 // getSpeed
 //
-// Get the current speed of the mStepper. NORTH, WEST, TRACKING
+// Get the current speed of the _stepper. NORTH, WEST, TRACKING
 /////////////////////////////////
 float Mount::getSpeed(int direction)
 {

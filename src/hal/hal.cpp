@@ -94,7 +94,7 @@ Driver* hal::driver::create(StepperSpecs& stepperSpecs, hal::driver::TMC2209Conf
 {
     return new TMC2209(
         stepperSpecs,
-        config.microstepping,
+        config.ms,
         config.serial,
         config.address,
         config.pin_en,

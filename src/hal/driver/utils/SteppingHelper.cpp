@@ -6,26 +6,26 @@ SteppingHelper::SteppingHelper() = default;
 
 void SteppingHelper::setSpeed(const float sps)
 {
-    if (this->mSps != sps)
+    if (this->_sps != sps)
     {
-        this->mSps = sps;
-        this->mSteppingInterval =  static_cast<unsigned long>(1000000UL / sps);
+        this->_sps = sps;
+        this->_steppingInterval =  static_cast<unsigned long>(1000000UL / sps);
     }
 }
 
 bool SteppingHelper::step()
 {
-    if (mSps == 0.0f)
+    if (_sps == 0.0f)
         return false;
 
-    if (micros() - mLastStepTime >= mSteppingInterval)
+    if (micros() - _lastStepTime >= _steppingInterval)
     {
-        mLastStepTime += mSteppingInterval;
+        _lastStepTime += _steppingInterval;
 
-        if (mSps < 0)
-            mPosition--;
+        if (_sps < 0)
+            _position--;
         else
-            mPosition++;
+            _position++;
 
         return true;
     }
@@ -35,5 +35,5 @@ bool SteppingHelper::step()
 
 long SteppingHelper::getPosition() const
 {
-    return mPosition;
+    return _position;
 }

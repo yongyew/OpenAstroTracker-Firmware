@@ -39,7 +39,7 @@ namespace hal
     {
         struct TMC2209Config
         {
-            uint16_t microstepping;
+            uint16_t ms;
             Stream* serial;
             uint8_t address;
             uint8_t pin_en;
@@ -62,7 +62,7 @@ namespace hal
 //    template<>
 //    TMC2209* createDriver(
 //        StepperSpecs* raStepper,
-//        uint16_t microstepping,
+//        uint16_t ms,
 //        Stream* serial,
 //        uint8_t serialAddress,
 //        uint8_t pinEN,

@@ -1,79 +1,83 @@
 #include "TMC2209.hpp"
 
+#define R_SENSE 0.11f
+
 TMC2209::TMC2209(
     const StepperSpecs& stepper,
-    const uint16_t microstepping,
+    const uint16_t ms,
     Stream* serial,
     const uint8_t address,
     const uint8_t pin_en,
     const uint8_t pin_step,
     const uint8_t pin_dir)
     :
-    Driver(stepper, microstepping),
-    mTmcStepper(TMC2209Stepper(serial, 0.11f, address)),
-    mPin_en(pin_en),
-    mPin_step(pin_step),
-    mPin_dir(pin_dir)
+        Driver(stepper, ms),
+        _tmcStepper(TMC2209Stepper(serial, R_SENSE, address)),
+        _pin_en(pin_en),
+        _pin_step(pin_step),
+        _pin_dir(pin_dir)
 {
 }
 
 void TMC2209::setup()
 {
     // set driver pins in output mode
-    pinMode(mPin_en, OUTPUT);
-    pinMode(mPin_step, OUTPUT);
-    pinMode(mPin_dir, OUTPUT);
+    pinMode(_pin_en, OUTPUT);
+    pinMode(_pin_step, OUTPUT);
+    pinMode(_pin_dir, OUTPUT);
 
-    // enable mStepper (LOW = on, HIGH = off)
-    digitalWrite(mPin_en, LOW);
+    // enable _stepper (LOW = on, HIGH = off)
+    digitalWrite(_pin_en, LOW);
 
-    mTmcStepper.begin();
+    _tmcStepper.begin();
 
     // TODO: check if connection suceeded
 
     // TODO: document these values and why they are used
 
-    mTmcStepper.toff(4);
-    mTmcStepper.rms_current(mStepper.getRMSCurrent());
-    mTmcStepper.fclktrim(4);
-    mTmcStepper.microsteps((mMicrostepping <= 1) ? 0 : mMicrostepping);
+    _tmcStepper.toff(4);
+    _tmcStepper.rms_current(_stepper.getRMSCurrent());
+    _tmcStepper.fclktrim(4);
+    _tmcStepper.microsteps((_ms <= 1) ? 0 : _ms);
 }
 
 float TMC2209::setSpeed(const float degPerSecond)
 {
-    if (this->mSpeed != degPerSecond)
+    if (this->_speed != degPerSecond)
     {
         Driver::setSpeed(degPerSecond);
 
-        if (this->mSpeed >= 0)
+        if (this->_speed >= 0)
         {
-            digitalWrite(mPin_dir, HIGH);
+            digitalWrite(_pin_dir, HIGH);
         }
         else
         {
-            digitalWrite(mPin_dir, LOW);
+            digitalWrite(_pin_dir, LOW);
         }
     }
 
-    return this->mSpeed;
+    return this->_speed;
 }
 
 void TMC2209::loop()
 {
-    if (mSteppingHelper.step())
+    if (_stepHelper.step())
     {
         // TODO: use fast digital write with direct port manipulation
-        digitalWrite(mPin_step, HIGH);
+        digitalWrite(_pin_step, HIGH);
 
-        // TODO: handle this without blocking
-        // typical required signal timing for STEP pin being HIGH
-        delayMicroseconds(100);
-        digitalWrite(mPin_step, LOW);
+        // TODO: check if the delays are really needed since digitalWrite takes 3.40us (vs required 1us)
+        // typical required signal timing for STEP pin being HIGH is 100ns, lowest time we can wait is 1us
+        delayMicroseconds(1);
+
+        digitalWrite(_pin_step, LOW);
+        // typical required signal timing for STEP pin being LOW is 100ns, lowest time we can wait is 1us
+        delayMicroseconds(1);
     }
 }
 
 float TMC2209::getPosition() const
 {
-    return this->mStepper.getDegPerStep() * static_cast<float>(mSteppingHelper.getPosition())
-        / static_cast<float>(mMicrostepping);
+    return this->_stepper.getDegPerStep() * static_cast<float>(_stepHelper.getPosition()) / static_cast<float>(_ms);
 }

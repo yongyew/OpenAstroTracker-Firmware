@@ -38,7 +38,7 @@ StepperSpecs stepperDEC(
 );
 
 hal::driver::TMC2209Config driverRAConfig = {
-    .microstepping = RA_MICROSTEPPING,
+    .ms = RA_MICROSTEPPING,
     .serial = &Serial1, // TODO: get from platform
     .address = 0b00, // TODO: get from configs
     .pin_en = RA_EN_PIN,
@@ -52,7 +52,7 @@ Driver* driverRA = hal::driver::create(
 );
 
 RaAxis* axisRA = new RaAxis(
-    RA_WHEEL_CIRCUMFERENCE / (2 * RA_PULLEY_TEETH),
+    (2 * RA_PULLEY_TEETH) / RA_WHEEL_CIRCUMFERENCE,
     driverRA,
     1.5f
 );
@@ -70,7 +70,7 @@ WifiControl wifiControl(&mount, &lcdMenu);
 //   Interrupt handling
 /////////////////////////////////
 /* There are three possible configurations for periodically servicing the steper drives:
- * 1) If RUN_STEPPERS_IN_MAIN_LOOP != 0 then the mStepper drivers are called from Mount::loop().
+ * 1) If RUN_STEPPERS_IN_MAIN_LOOP != 0 then the _stepper drivers are called from Mount::loop().
  *    Performance depends on how fast Mount::loop() can execute. With serial or UI activity it 
  *    is likely that steps will be missed and tracking may not be smooth. No interrupts or threads
  *    are used, so this is simple to get running.
@@ -78,9 +78,9 @@ WifiControl wifiControl(&mount, &lcdMenu);
  *    stepperControlTask() is scheduled to run every 1 ms (1 kHz rate). On ESP32 the default Arduino 
  *    loop() function runs on Core 1, therefore serial and UI activity also runs on Core 1. 
  *    Note that Wifi and Bluetooth drivers will be sharing Core 0 with stepperControlTask().
- *    This configuration decouples mStepper servicing from other OAT activities by using both cores.
+ *    This configuration decouples _stepper servicing from other OAT activities by using both cores.
  * 3) By default (e.g. for ATmega2560) a periodic timer is configured for a 500 us (2 kHz rate interval).
- *    This timr generates interrupts which are handled by stepperControlCallback(). The mStepper
+ *    This timr generates interrupts which are handled by stepperControlCallback(). The _stepper
  *    servicing therefore suspends loop() to generate motion, ensuring smooth tracking.
  */
 #if (RUN_STEPPERS_IN_MAIN_LOOP != 0)
@@ -91,7 +91,7 @@ WifiControl wifiControl(&mount, &lcdMenu);
 TaskHandle_t StepperTask;
 
 // This is the task for simulating periodic interrupts on ESP32 platforms. 
-// It should do very minimal work, only calling Mount::interruptLoop() to step the mStepper motors as needed.
+// It should do very minimal work, only calling Mount::interruptLoop() to step the _stepper motors as needed.
 // This task function is run on Core 0 of the ESP32 and never returns
 void IRAM_ATTR stepperControlTask(void* payload)
 {
@@ -104,7 +104,7 @@ void IRAM_ATTR stepperControlTask(void* payload)
 
 #else
 // This is the callback function for the timer interrupt on ATMega platforms. 
-// It should do very minimal work, only calling Mount::interruptLoop() to step the mStepper motors as needed.
+// It should do very minimal work, only calling Mount::interruptLoop() to step the _stepper motors as needed.
 // It is called every 500 us (2 kHz rate)
 void stepperControlTimerCallback(void* payload)
 {
@@ -218,7 +218,7 @@ void setup()
               #endif
           #endif
     #endif
-// end mMicrostepping -------------------
+// end _ms -------------------
 
     Serial.begin(SERIAL_BAUDRATE);
 
@@ -298,7 +298,7 @@ void setup()
     delay(1000);
 
     #if AZIMUTH_ALTITUDE_MOTORS == 1
-    LOGV1(DEBUG_ANY, F("Configure AZ mStepper..."));
+    LOGV1(DEBUG_ANY, F("Configure AZ _stepper..."));
       #if AZ_DRIVER_TYPE == DRIVER_TYPE_ULN2003
       mount.configureAZStepper(AZmotorPin1, AZmotorPin2, AZmotorPin3, AZmotorPin4, AZ_STEPPER_SPEED, AZ_STEPPER_ACCELERATION);
       #elif AZ_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || AZ_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART
@@ -312,7 +312,7 @@ void setup()
         mount.configureAZdriver(AZ_SERIAL_PORT_RX, AZ_SERIAL_PORT_TX, R_SENSE, AZ_DRIVER_ADDRESS, AZ_RMSCURRENT, AZ_STALL_VALUE);
                 #endif
             #endif
-    LOGV1(DEBUG_ANY, F("Configure Alt mStepper..."));
+    LOGV1(DEBUG_ANY, F("Configure Alt _stepper..."));
         #if ALT_DRIVER_TYPE == DRIVER_TYPE_ULN2003
       mount.configureALTStepper(ALTmotorPin1, ALTmotorPin2, ALTmotorPin3, ALTmotorPin4, ALT_STEPPER_SPEED, ALT_STEPPER_ACCELERATION);
           #elif ALT_DRIVER_TYPE == DRIVER_TYPE_A4988_GENERIC || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE || ALT_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART

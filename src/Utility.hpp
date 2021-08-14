@@ -160,9 +160,3 @@ int sign(long num);
 int fsign(float num);
 
 #endif
-
-#define constrain(x,low,high)     ({ \
-  typeof (x) _x = (x);               \
-  typeof (low) _l = (low);           \
-  typeof (high) _h = (high);         \
-  _x < _l ? _l : _x > _h ? _h : _x; })

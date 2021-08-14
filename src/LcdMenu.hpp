@@ -70,10 +70,10 @@ public:
   // It then sends the string to the LCD, keeping the selector arrows centered in the same place.
   void updateDisplay();
 
-  // Print a string to the LCD at the current cursor mPosition, substituting the special arrows and padding with spaces to the end
+  // Print a string to the LCD at the current cursor _position, substituting the special arrows and padding with spaces to the end
   void printMenu(String line);
 
-  // Print a character at a specific mPosition
+  // Print a character at a specific _position
   void printAt(int col, int row, char ch);
 
   #if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017

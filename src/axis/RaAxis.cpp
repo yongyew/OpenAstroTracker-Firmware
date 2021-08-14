@@ -7,21 +7,21 @@ RaAxis::RaAxis(
     Driver* driver,
     const float guidingSpeedFactor)
     : RotationAxis(transmission, driver),
-      mTrackingEnabled(false),
-      mGuidingDirection(NONE),
-      mGuidingSpeedFactor(guidingSpeedFactor)
+      _isTrackingEnabled(false),
+      _guidingDirection(NONE),
+      _guidingSpeedFactor(guidingSpeedFactor)
 {
 }
 
 void RaAxis::setTracking(const bool enable)
 {
-    mTrackingEnabled = enable;
+    _isTrackingEnabled = enable;
     updateRotationSpeed();
 }
 
-void RaAxis::setGuiding(const Direction mode)
+void RaAxis::setGuiding(const Direction direction)
 {
-    mGuidingDirection = mode;
+    _guidingDirection = direction;
     updateRotationSpeed();
 }
 
@@ -29,12 +29,16 @@ void RaAxis::updateRotationSpeed()
 {
     float speed = 0.0f;
 
-    if (mTrackingEnabled)
+    if (_isTrackingEnabled)
     {
         speed += EARTH_ROTATION_SPEED;
     }
 
-    speed += static_cast<float>(mGuidingDirection) * mGuidingSpeedFactor * EARTH_ROTATION_SPEED;
+    speed += static_cast<float>(_guidingDirection) * _guidingSpeedFactor * EARTH_ROTATION_SPEED;
 
     setSpeed(speed);
+}
+
+void RaAxis::setSlewingRate(float rate) {
+    this->_slewingRate = rate;
 }

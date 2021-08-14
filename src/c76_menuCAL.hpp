@@ -37,7 +37,7 @@ enum
 
 // Polar calibration goes through these three states:
 //  11- moving to RA and DEC beyond Polaris and waiting on confirmation that Polaris is centered
-//  13- moving back to home mPosition
+//  13- moving back to home _position
 #define POLAR_CALIBRATION_WAIT_CENTER_POLARIS 20
 #define POLAR_CALIBRATION_WAIT_HOME 21
 
@@ -60,13 +60,13 @@ enum
 // Backlash calibration only has one state, allowing you to adjust the number of steps with UP and DOWN
 #define BACKLASH_CALIBRATION 70
 
-// Confirm that the current mPosition is the parking mPosition
+// Confirm that the current _position is the parking _position
 #define PARKING_POS_CONFIRM 80
 
-// Confirm that current mPosition is the DEC Lower limit
+// Confirm that current _position is the DEC Lower limit
 #define DEC_LOWER_LIMIT_CONFIRM 90
 
-// Confirm that current mPosition is the DEC Upper limit
+// Confirm that current _position is the DEC Upper limit
 #define DEC_UPPER_LIMIT_CONFIRM 93
 
 // COnfirm and set the UTC offset
